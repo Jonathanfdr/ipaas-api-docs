@@ -74,11 +74,27 @@ Não envie `category`: o endpoint `/v4/applications/categories` retorna 404 e ne
 
 O campo de vínculo é **`authModelIds`** (lista de IDs). Enviar `authModels` com objetos é aceito sem erro e **não vincula nada** — o ambiente fica silenciosamente sem autenticação.
 
-`baseURL` sem barra no final, porque os paths do OpenAPI já começam com `/`.
+`baseURL` sem barra no final. Se os paths da spec já incluem prefixo de versão (o Asaas usa `/v3/...`), o base path **não** deve repetir esse prefixo.
 
 A resposta do POST devolve `active: false` mesmo quando você envia `true`. É só o retorno; um GET seguido mostra `active: true`. Não tente "corrigir".
 
 Para editar depois: `PUT /ipaas/api/v2/environments/{id}` com o mesmo corpo.
+
+#### Ambiente custom para alternar sandbox e produção
+
+Quando a API tem ambientes que só diferem no subdomínio, em vez de criar dois ambientes irmãos (o que obrigaria a duplicar os serviços), use um **ambiente custom** com placeholder e ambientes filhos:
+
+```
+ambiente pai   custom: true   baseURL: https://{environment}.asaas.com
+  └── filho    Sandbox        baseURL: https://api-sandbox.asaas.com
+  └── filho    Produção       baseURL: https://api.asaas.com
+```
+
+Os serviços ficam vinculados ao **pai**, então trocar de ambiente não exige recriar nem reimportar nada. Os filhos aparecem em `environmentsChild` ao expandir o ambiente. Consulta:
+
+```
+GET /ipaas/api/v2/environments/?applicationId={id}&expand=environmentsChild&expand=authModels&expand=accounts
+```
 
 ### 2.3 Criar a conta — não verificado
 
@@ -287,6 +303,25 @@ A validação real de um app é executá-lo num diagrama e conferir a rastreabil
 ```
 
 Parâmetros de path do recurso vão em `configurations.inPath`, com a chave igual ao nome do parâmetro. Na resposta síncrona, `{{{idN}}}` interpola o payload inteiro daquele step.
+
+#### Campos de `configurations` de um step REST
+
+Os grupos do formulário do componente são `inPath`, `inQuery`, `inHeader` e `inBody`, e cada um vira uma chave em `configurations`:
+
+| Chave | Uso |
+|---|---|
+| `name` | rótulo da caixa |
+| `environmentId` | ambiente do app |
+| `applicationService` | serviço do app |
+| `accountId` | **conta**, obrigatório quando o ambiente tem autenticação |
+| `inPath` | `{ "id": "123" }` — parâmetros de path |
+| `inQuery` | filtros de query string |
+| `inHeader` | headers adicionais |
+| `inBody` | **corpo da requisição** para POST/PUT |
+
+**`configurations.inBody` é a saída para o corpo que o importador não traz.** O schema importado só determina quais campos a interface exibe; na execução vale o que está em `configurations`. Então dá para montar POST/PUT via API mesmo com o `requestBody` ausente no recurso, preenchendo `inBody` à mão.
+
+Para apps com autenticação, o step precisa de `accountId` — ou seja, **a conta tem que existir antes de montar o diagrama**. Sem ela não há como referenciar a credencial no step.
 
 ### 6.2 Salvar e publicar — verificado
 
