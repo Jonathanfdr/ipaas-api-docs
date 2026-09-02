@@ -15,7 +15,7 @@ Leia o **[Playbook de cadastro no iPaaS](./IPAAS-PLAYBOOK.md)**. Ele tem a API c
 | App | Autenticação | Operações | Status |
 |---|---|---|---|
 | [brasilapi](./brasilapi) | `NO_AUTH` | 16 | importado e validado em diagrama |
-| [asaas](./asaas) | `API_KEY` (header `access_token`) | 41 em 3 serviços | specs prontas |
+| [asaas](./asaas) | `API_KEY` (header `access_token`) | 41 em 3 serviços | importado e validado em diagrama |
 
 ## Estrutura
 

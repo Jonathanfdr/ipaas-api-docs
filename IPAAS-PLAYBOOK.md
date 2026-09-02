@@ -96,13 +96,41 @@ Os serviços ficam vinculados ao **pai**, então trocar de ambiente não exige r
 GET /ipaas/api/v2/environments/?applicationId={id}&expand=environmentsChild&expand=authModels&expand=accounts
 ```
 
-### 2.3 Criar a conta — não verificado
+### 2.3 Criar a conta — verificado
 
-`POST /ipaas/api/v3/accounts`
+`POST /ipaas/api/v3/accounts` → **201**
 
-Ainda não exercitado, porque o primeiro app usa `NO_AUTH`. O formato provável combina `componentId`, `environmentId`, o id do auth model e os campos do `inputSchema` do tipo escolhido (seção 3). **Antes de cadastrar em lote, capture o POST real** criando uma conta pela interface com a aba de rede aberta.
+```json
+{
+  "authType": "API_KEY",
+  "componentId": "<componentId do app>",
+  "environmentId": "<id do ambiente>",
+  "name": "Sandbox",
+  "modelId": "e90e6f18-c1bb-4170-9d10-5e45be5314c6",
+  "config": {
+    "outputSchema": {
+      "addTo": "header",
+      "keys": [{ "key": "access_token", "value": "<credencial>" }]
+    }
+  }
+}
+```
 
-Validação: `GET /ipaas/api/v3/accounts/testAccount/{id}` testa a conexão de verdade.
+Pontos que custam tempo se errados:
+
+`environmentId` é **string**, não lista. Enviar `environments: [{ "id": ... }]` (o formato que aparece na **leitura** da conta) resulta em `500 Name is null`, mensagem que não tem relação com a causa.
+
+`authType` é obrigatório além de `modelId`. Os dois se referem ao mesmo auth model: `authType` é o tipo (`API_KEY`) e `modelId` é o id.
+
+Os valores da credencial vão em `config.outputSchema`, com as chaves do `inputSchema` do auth model (seção 3). Para `API_KEY`: `addTo` (`header` ou `query`) e `keys` como lista de pares.
+
+Ao vincular a conta a um ambiente **custom**, ela passa a valer também para os ambientes filhos.
+
+#### testAccount tem uso limitado
+
+`GET /ipaas/api/v3/accounts/testAccount/{id}` **não funciona para `API_KEY` sem parâmetro**: retorna `400 FLUIG_CONNECTOR_ACCOUNT_TEST_URL_NEEDED` com o tipo de auth em `args`. Com `?authUrl=<url>` ele passa a chamar a URL, mas retornou `500 / "400 Bad Request"` mesmo com credencial comprovadamente válida (a mesma chave respondia `200` via curl e funcionou na execução do diagrama).
+
+Ou seja: **não use o `testAccount` como critério de validação da credencial.** Valide chamando a API do fornecedor diretamente e, principalmente, executando o diagrama.
 
 ### 2.4 Criar o serviço — verificado
 
@@ -330,11 +358,13 @@ POST /ipaas/api/v2/integrations/sketch/{integrationId}    # rascunho
 POST /ipaas/api/v2/integrations/publish/{integrationId}   # publica e ativa
 ```
 
-Corpo: `{ name, description, flow, icons: [], dynamicIcons: [], descriptionEdit }`.
+Corpo: `{ name, description, flow, icons: [], dynamicIcons: true, descriptionEdit }`.
 
 **A rota é v2**, não v3 nem v4, apesar de o resto da API de integrações ser v3/v4. Em v3/v4 retorna `No static resource`.
 
 **`icons` e `dynamicIcons` são obrigatórios no publish.** Sem eles a resposta é **400 com corpo vazio**, sem nenhuma indicação do campo faltante. No sketch não são obrigatórios.
+
+**Atenção aos tipos: `icons` é array, `dynamicIcons` é boolean.** Passar `dynamicIcons: []` gera `500 JSON parse error: Cannot deserialize value of type boolean from Array value`. Copiar do GET com `it.dynamicIcons || []` funciona por acidente quando o valor é `true`, mas quebra quando é `false`.
 
 `name` é obrigatório: sem ele o erro é uma violação de not-null do banco (`null value in column "name"`).
 
@@ -375,7 +405,14 @@ Para uma cadeia em linha reta, coloque os REST em `top` e o trigger/resposta em 
 
 ### 6.5 Executar e conferir a rastreabilidade — verificado
 
-A URL do webhook está em **Integrações → Listagem de Webhooks**:
+A `apiKey` do webhook sai direto da API, sem precisar abrir a tela de webhooks:
+
+```
+GET /ipaas/api/v3/keys?integrationId={integrationId}
+→ { "items": [{ "apiKey": "...", "sync": true, "url": "/sync-hook/api/v1/integrations/{id}/execute" }] }
+```
+
+A URL que funciona para o webhook síncrono é com a api-key no path:
 
 ```
 POST https://api-ipaas.totvs.app/sync-hook/api/v1/integrations/{integrationId}/api-key/{apiKey}
@@ -389,9 +426,25 @@ A resposta traz `{ messageId, result, status, timestamp }`. Para conferir a rast
 GET /ipaas/api/v4/messages/{messageId}
 ```
 
-Retorna `status` (`DONE`/`ERROR`), `executionTime`, `initialComponent`, `finalComponent`, `message` e `errorStack`. Como o fluxo é sequencial, `status: DONE` com `finalComponent` igual ao último nó comprova que **todos** os steps executaram — se algum falhasse, o fluxo pararia nele.
+Retorna `status` (`DONE`/`ERROR`), `executionTime`, `initialComponent`, `finalComponent` e `errorStack`. Como o fluxo é sequencial, `status: DONE` com `finalComponent` igual ao último nó comprova que **todos** os steps executaram — se algum falhasse, o fluxo pararia nele.
+
+Cuidado ao interpretar o campo `message`: numa execução `DONE` ele carrega o **payload enviado**, não um erro. Só trate como erro junto com `status: ERROR` ou `errorStack` preenchido.
 
 Não encontrei endpoint público de detalhamento por componente (`/components`, `/steps`, `/traceability` retornam 500 ou 403). Para validar recurso por recurso, inclua todos os steps na resposta síncrona e verifique os payloads.
+
+#### Encadear a saída de um step na entrada do próximo — verificado
+
+`{{{idN}}}` interpola o payload inteiro do step `idN`; `{{{idN.campo}}}` interpola um campo. Funciona em qualquer configuração, inclusive `inPath` e `inBody`:
+
+```json
+// consultar o registro criado no step anterior
+"configurations": { "inPath": { "id": "{{{id1.id}}}" } }
+
+// criar cobranca vinculada ao cliente criado no step anterior
+"configurations": { "inBody": { "customer": "{{{id1.id}}}", "billingType": "BOLETO", "value": 100 } }
+```
+
+A interpolação acontece **antes** do envio: a rastreabilidade registra o corpo já com o valor resolvido.
 
 ### 6.6 Cuidados ao montar o diagrama de teste
 
@@ -487,4 +540,4 @@ GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initia
 | App | Auth | Operações | Resultado |
 |---|---|---|---|
 | BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
-| Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados, schemas de resposta expandidos; conta e execução pendentes de chave de sandbox |
+| Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados; conta criada e validada; diagrama com POST (`inBody`) e encadeamento entre steps executado `DONE`, criando cliente e cobrança reais no sandbox |

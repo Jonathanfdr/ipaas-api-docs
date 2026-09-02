@@ -100,7 +100,13 @@ Para adicionar qualquer um, basta incluir o par `"Tag=slug"` no comando de recor
 
 ## Observações
 
-Os schemas vêm da **spec oficial do fornecedor**, não de chamadas à API. Isso difere da BrasilAPI, onde não havia spec e os schemas foram derivados de respostas reais. Confirmei que a base URL do sandbox responde e que sem a chave retorna `401`, mas os payloads de resposta não foram verificados contra a API por falta de credencial de sandbox.
+Os schemas vêm da **spec oficial do fornecedor**, não de chamadas à API. Isso difere da BrasilAPI, onde não havia spec e os schemas foram derivados de respostas reais. A estrutura de listagem foi confirmada contra o sandbox (`object`, `hasMore`, `totalCount`, `limit`, `offset`, `data`), assim como os objetos de cliente (30 campos) e cobrança (39 campos) retornados na execução.
+
+Validado em diagrama no sandbox: criar cliente → consultar pelo id retornado → listar → criar cobrança vinculada. Execução `DONE`, com cliente e cobrança criados de verdade (o boleto vem com URL de PDF). Isso exercitou `API_KEY` no header, corpo de POST via `configurations.inBody` e encadeamento `{{{idN.campo}}}` entre steps.
+
+A chave de API do Asaas **começa com `$`**. Isso não causou problema no iPaaS, mas causa em alguns clientes HTTP e em shell sem quoting adequado — o Asaas tem uma página de documentação só sobre isso.
+
+O `testAccount` do iPaaS não serve para validar credencial `API_KEY`: exige `authUrl` e ainda assim retorna erro com credencial válida. Valide chamando a API do fornecedor ou executando o diagrama.
 
 `POST /v3/payments` e `POST /v3/payments/` (com barra final) existem os dois na spec oficial, assim como em assinaturas. É duplicação da origem, mantida no recorte para não divergir da spec publicada.
 
