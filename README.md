@@ -14,31 +14,50 @@ Leia o **[Playbook de cadastro no iPaaS](./IPAAS-PLAYBOOK.md)**. Ele tem a API c
 
 | App | Autenticação | Operações | Status |
 |---|---|---|---|
-| [brasilapi](./brasilapi) | `NO_AUTH` | 16 | importado e validado |
+| [brasilapi](./brasilapi) | `NO_AUTH` | 16 | importado e validado em diagrama |
+| [asaas](./asaas) | `API_KEY` (header `access_token`) | 41 em 3 serviços | specs prontas |
 
 ## Estrutura
 
 ```
-IPAAS-PLAYBOOK.md        # referência de cadastro no iPaaS
+IPAAS-PLAYBOOK.md            # referência de cadastro no iPaaS
 <nome-do-app>/
-├── openapi.json         # spec fonte, mantida com $ref (é esta que você edita)
-├── openapi.ipaas.json   # GERADO - spec dereferenciada, é esta que o iPaaS importa
-├── ipaas.json           # metadados de cadastro (app, ambientes, contas, serviços)
-└── README.md            # como cadastrar e usar no iPaaS
+├── openapi.json             # spec fonte, mantida com $ref (é esta que você edita)
+├── openapi.ipaas.json       # GERADO - spec dereferenciada, é esta que o iPaaS importa
+├── ipaas.json               # metadados de cadastro (app, ambientes, contas, serviços)
+└── README.md                # como cadastrar e usar no iPaaS
 tools/
-└── dereference.py       # gera openapi.ipaas.json a partir de openapi.json
+├── slice_spec.py            # recorta uma spec grande em specs menores, por tag
+└── dereference.py           # gera os *.ipaas.json a partir das specs fonte
+```
+
+Um app pode ter **várias specs, uma por serviço**, quando a API é grande. Nesse caso o nome carrega o domínio e cada uma gera seu próprio arquivo do iPaaS:
+
+```
+asaas/openapi-clientes.json    ->  asaas/openapi-clientes.ipaas.json
+asaas/openapi-cobrancas.json   ->  asaas/openapi-cobrancas.ipaas.json
 ```
 
 Nome da pasta em minúsculas com hífen: `brasilapi`, `asaas`, `sendgrid`.
 
-Depois de editar qualquer `openapi.json`, regere a spec do iPaaS:
+## Fluxo de trabalho
+
+Quando a API **já tem OpenAPI oficial** (caso do Asaas), recorte por tag e dereferencie:
 
 ```bash
-python3 tools/dereference.py brasilapi   # um app
-python3 tools/dereference.py --all       # todos
+curl -sL "<url da spec oficial>" -o /tmp/spec.json
+python3 tools/slice_spec.py /tmp/spec.json <app> "Tag A=slug-a" "Tag B=slug-b"
+python3 tools/dereference.py <app>
 ```
 
-O script existe porque o importador do iPaaS **não resolve `$ref`** — sem a dereferência, os campos da resposta se perdem e viram um único campo `response` do tipo string. Ele também valida os requisitos do importador e avisa sobre operações sem `tags` ou `summary`.
+Quando **não há spec** (caso da BrasilAPI), escreva o `openapi.json` à mão derivando os schemas de chamadas reais e depois rode:
+
+```bash
+python3 tools/dereference.py <app>     # um app
+python3 tools/dereference.py --all     # todos
+```
+
+O `dereference.py` existe porque o importador do iPaaS **não resolve `$ref`** — sem a dereferência, os campos da resposta se perdem e viram um único campo `response` do tipo string. Ele também valida os requisitos do importador e avisa sobre operações sem `tags` ou `summary`.
 
 ## URL de importação
 

@@ -1,0 +1,55 @@
+{
+  "app": {
+    "name": "Asaas",
+    "description": "Plataforma brasileira de cobranças e pagamentos: clientes, cobranças (boleto, Pix, cartão) e assinaturas recorrentes."
+  },
+  "environments": [
+    {
+      "name": "Sandbox",
+      "type": "REST",
+      "baseURL": "https://api-sandbox.asaas.com",
+      "authModels": ["API_KEY"]
+    },
+    {
+      "name": "Produção",
+      "type": "REST",
+      "baseURL": "https://api.asaas.com",
+      "authModels": ["API_KEY"]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Sandbox",
+      "environment": "Sandbox",
+      "authModel": "API_KEY",
+      "addTo": "header",
+      "keys": [{ "key": "access_token", "value": "<chave de API do sandbox, cadastrar na interface>" }]
+    }
+  ],
+  "services": [
+    {
+      "name": "Clientes",
+      "description": "Cadastro e consulta de clientes",
+      "environment": "Sandbox",
+      "resourceType": "REST",
+      "icon": "user",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/asaas/openapi-clientes.ipaas.json"
+    },
+    {
+      "name": "Cobranças",
+      "description": "Cobranças via boleto, Pix e cartão de crédito",
+      "environment": "Sandbox",
+      "resourceType": "REST",
+      "icon": "money",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/asaas/openapi-cobrancas.ipaas.json"
+    },
+    {
+      "name": "Assinaturas",
+      "description": "Assinaturas e cobranças recorrentes",
+      "environment": "Sandbox",
+      "resourceType": "REST",
+      "icon": "refresh",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/asaas/openapi-assinaturas.ipaas.json"
+    }
+  ]
+}

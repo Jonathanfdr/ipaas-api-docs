@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
-"""Gera uma versão dereferenciada da spec OpenAPI para importação no TOTVS iPaaS.
+"""Gera as versões dereferenciadas das specs OpenAPI para importação no TOTVS iPaaS.
 
 O importador do iPaaS não resolve `$ref`: um response que aponta para
 `#/components/schemas/X` é importado como um único campo `response` do tipo
 string, em vez dos campos do objeto. Este script resolve `$ref` e mescla
-`allOf`, produzindo `openapi.ipaas.json` a partir de `openapi.json`.
+`allOf`, produzindo um `<nome>.ipaas.json` para cada `openapi*.json` da pasta.
+
+Um app pode ter várias specs, uma por serviço:
+    asaas/openapi-clientes.json    -> asaas/openapi-clientes.ipaas.json
+    asaas/openapi-cobrancas.json   -> asaas/openapi-cobrancas.ipaas.json
 
 Uso:
     python3 tools/dereference.py brasilapi
@@ -99,28 +103,46 @@ def validar_para_ipaas(spec):
 
 
 def processar(pasta: Path):
-    origem = pasta / "openapi.json"
-    if not origem.exists():
-        print(f"  ignorado: {pasta.name} (sem openapi.json)")
+    """Processa todas as specs fonte da pasta (openapi.json e openapi-*.json)."""
+    origens = sorted(
+        f for f in pasta.glob("openapi*.json")
+        if not f.name.endswith(".ipaas.json")
+    )
+    if not origens:
+        print(f"  ignorado: {pasta.name} (sem openapi*.json)")
         return True
 
-    spec = json.loads(origem.read_text(encoding="utf-8"))
-    problemas = validar_para_ipaas(spec)
+    ok = True
+    for origem in origens:
+        spec = json.loads(origem.read_text(encoding="utf-8"))
+        problemas = validar_para_ipaas(spec)
 
-    plano = dereferenciar(spec, spec)
-    plano.pop("components", None)
+        plano = dereferenciar(spec, spec)
+        # remove apenas o que foi embutido inline; securitySchemes descreve a
+        # autenticação e nao e schema de dados, entao permanece
+        componentes = plano.get("components") or {}
+        seguranca = componentes.get("securitySchemes")
+        if seguranca:
+            plano["components"] = {"securitySchemes": seguranca}
+        else:
+            plano.pop("components", None)
 
-    if json.dumps(plano, ensure_ascii=False).count('"$ref"'):
-        problemas.append("ainda restam $ref após a dereferência")
+        if json.dumps(plano, ensure_ascii=False).count('"$ref"'):
+            problemas.append("ainda restam $ref após a dereferência")
 
-    destino = pasta / "openapi.ipaas.json"
-    destino.write_text(json.dumps(plano, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        destino = pasta / (origem.stem + ".ipaas.json")
+        destino.write_text(json.dumps(plano, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
-    ops = sum(len(m) for m in plano.get("paths", {}).values())
-    print(f"  {pasta.name}: {ops} operações -> {destino.name}")
-    for p in problemas:
-        print(f"    AVISO {p}")
-    return not problemas
+        ops = sum(
+            len([m for m in metodos if m in ("get", "post", "put", "delete", "patch")])
+            for metodos in plano.get("paths", {}).values()
+        )
+        kb = destino.stat().st_size // 1024
+        print(f"  {pasta.name}/{origem.name}: {ops} operações -> {destino.name} ({kb} KB)")
+        for p in problemas:
+            print(f"    AVISO {p}")
+        ok = ok and not problemas
+    return ok
 
 
 def main():
