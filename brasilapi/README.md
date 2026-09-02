@@ -40,7 +40,7 @@ Não é necessária. Com `NO_AUTH` o ambiente funciona sem conta associada — o
 Crie o serviço e use **Importar Swagger** apontando para a URL raw deste repositório:
 
 ```
-https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brasilapi/openapi.json
+https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brasilapi/openapi.ipaas.json
 ```
 
 | Campo | Valor |
@@ -50,6 +50,8 @@ https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brasilapi/openap
 | Tipo | `REST` |
 
 A importação aceita **URL**, não upload de arquivo. O repositório precisa continuar público para o iPaaS conseguir baixar a spec.
+
+Importe o `openapi.ipaas.json`, e não o `openapi.json`. O importador do iPaaS não resolve `$ref`, e a versão dereferenciada é a que traz os campos da resposta expandidos. Detalhes em [IPAAS-PLAYBOOK.md](../IPAAS-PLAYBOOK.md).
 
 ## Endpoints incluídos
 

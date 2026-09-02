@@ -19,7 +19,7 @@
       "environment": "Produção",
       "resourceType": "REST",
       "icon": "product",
-      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brasilapi/openapi.json"
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brasilapi/openapi.ipaas.json"
     }
   ]
 }
