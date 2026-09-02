@@ -177,7 +177,28 @@ Todos verificados na prática. Nenhum está documentado publicamente.
 
 **Parâmetros de path viram `{{{param}}}`.** Formato de template do iPaaS, esperado.
 
-**Cache do `raw.githubusercontent` tem TTL de alguns minutos.** Após um push, a URL de branch pode servir a versão antiga, e query string não contorna. Para importar algo recém-publicado, use a URL por commit SHA, que é imutável:
+**O corpo de POST/PUT não é importado.** O importador traz path, query params, headers e o schema de **resposta**, mas ignora o corpo da requisição. Verificado com spec de teste isolada: um `POST` com `requestBody` (OpenAPI 3) importa com HTTP 200, porém `properties` sai sem `requestBody` e o `inputSchema` contém apenas `inHeader`. Não é problema da spec — é limitação do importador.
+
+Enviar a spec em **Swagger 2.0** (com o corpo em `parameters`/`in: body`) não resolve: o importador quebra com HTTP 500 e `Cannot invoke "java.lang.Throwable.getMessage()" because "cause" is null` (NPE no backend). Só OpenAPI 3 é aceito.
+
+Consequência prática: para APIs de escrita, o corpo precisa ser montado no builder, recurso por recurso. Existe um conversor que ajuda: `POST /ipaas/api/v3/rest-resources/schemas` recebe um **JSON de exemplo no corpo da requisição** e devolve os campos já no formato interno do iPaaS:
+
+```json
+// envio
+{ "name": "Cliente", "endereco": { "rua": "Av Paulista", "numero": 1000 } }
+// resposta
+{ "items": [
+  { "key": "name", "label": "name", "type": "string" },
+  { "key": "endereco", "label": "endereco", "type": "object", "objects": [
+      { "key": "numero", "label": "numero", "type": "integer" },
+      { "key": "rua", "label": "rua", "type": "string" } ] } ] }
+```
+
+Isso abre caminho para gerar o corpo a partir do schema da spec, mas ainda não foi testado se dá para gravar o resultado no recurso via `PUT`. **Não verificado.**
+
+**O `securityScheme` da spec vira header no recurso.** Se a spec declara `securitySchemes` com `in: header` (o Asaas usa `access_token`), o importador cria esse header no `inputSchema` do recurso. Não conflita com a conta `API_KEY`, que injeta o header em tempo de execução, mas explica por que o campo aparece duplicado na interface.
+
+ Após um push, a URL de branch pode servir a versão antiga, e query string não contorna. Para importar algo recém-publicado, use a URL por commit SHA, que é imutável:
 
 ```
 https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/<sha>/<app>/openapi.ipaas.json
@@ -193,14 +214,14 @@ https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/<sha>/<app>/openapi.i
 
 1. **Escolher o app** priorizando auth simples (seção 3) e verificar se há sandbox gratuita para testar a conta.
 2. **Criar a pasta** `<app>/` em minúsculas com hífen.
-3. **Levantar os endpoints** da fonte mais confiável disponível: spec oficial, ou o código do serviço, ou a documentação. Recortar por domínio — não importar centenas de endpoints num serviço só.
-4. **Chamar a API real** para derivar os schemas de resposta. Não confiar na documentação. Se um endpoint estiver indisponível, deixá-lo fora em vez de documentar sem verificar.
-5. **Escrever `openapi.json`** com `tags` e `summary` em toda operação, `$ref` livre (o script resolve), e as respostas de erro documentadas.
-6. **Gerar a spec do iPaaS**: `python3 tools/dereference.py <app>`.
-7. **Escrever `ipaas.json`** e `README.md` seguindo o padrão da `brasilapi/`.
+3. **Procurar spec oficial antes de escrever qualquer coisa.** Muitos fornecedores publicam OpenAPI; vale conferir a documentação e o índice `llms.txt`, quando existir. O Asaas publica em `https://www.asaas.com/openApi/document?version=3`. Se houver spec oficial, ela é a fonte de verdade e economiza todo o trabalho de levantar schemas.
+4. **Se a API for grande, recortar por tag** com `tools/slice_spec.py`. Serviço por domínio, não um serviço com centenas de operações.
+5. **Se não houver spec**, levantar os endpoints da fonte mais confiável (código do serviço, documentação) e derivar os schemas de **chamadas reais**. Se um endpoint estiver indisponível, deixá-lo fora em vez de documentar sem verificar.
+6. **Gerar as specs do iPaaS**: `python3 tools/dereference.py <app>`.
+7. **Escrever `ipaas.json`** e `README.md` seguindo o padrão das pastas existentes.
 8. **Commit e push**, e guardar o SHA do commit.
 9. **Cadastrar** seguindo a seção 2, usando a URL por SHA na importação.
-10. **Validar** conforme 2.6 e conferir na interface.
+10. **Validar** conforme 2.6, e depois em um diagrama conforme a seção 6.
 
 ### Antes de cadastrar em lote
 
@@ -431,3 +452,4 @@ GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initia
 | App | Auth | Operações | Resultado |
 |---|---|---|---|
 | BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
+| Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados, schemas de resposta expandidos; conta e execução pendentes de chave de sandbox |
