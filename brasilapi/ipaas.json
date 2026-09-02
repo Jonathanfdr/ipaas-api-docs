@@ -1,0 +1,25 @@
+{
+  "app": {
+    "name": "BrasilAPI",
+    "description": "Dados públicos brasileiros: CEP, CNPJ, bancos, DDD, feriados, IBGE, participantes do PIX, taxas de juros, NCM e domínios .br. API gratuita e sem autenticação."
+  },
+  "environments": [
+    {
+      "name": "Produção",
+      "type": "REST",
+      "baseURL": "https://brasilapi.com.br/api",
+      "authModels": ["NO_AUTH"]
+    }
+  ],
+  "accounts": [],
+  "services": [
+    {
+      "name": "Dados Públicos",
+      "description": "Consultas de CEP, CNPJ, bancos, localidades, feriados, PIX, taxas, NCM e domínios .br",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "product",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brasilapi/openapi.json"
+    }
+  ]
+}

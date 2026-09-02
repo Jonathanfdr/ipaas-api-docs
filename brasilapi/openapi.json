@@ -1,0 +1,776 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "BrasilAPI - Dados Públicos Brasileiros",
+    "description": "Coleção de endpoints públicos para consulta de dados brasileiros: CEP, CNPJ, bancos, DDD, feriados, IBGE, participantes do PIX, taxas de juros, NCM e domínios registro.br.\n\nA BrasilAPI é gratuita e não exige autenticação. Não há garantia contratual de SLA — trate indisponibilidade da origem como cenário esperado.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "BrasilAPI",
+      "url": "https://brasilapi.com.br"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://github.com/BrasilAPI/BrasilAPI/blob/main/LICENSE"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://brasilapi.com.br/api",
+      "description": "Produção"
+    }
+  ],
+  "tags": [
+    { "name": "CEP", "description": "Consulta de endereços por CEP" },
+    { "name": "Empresas", "description": "Dados cadastrais de pessoa jurídica" },
+    { "name": "Bancos", "description": "Instituições bancárias brasileiras" },
+    { "name": "Localidades", "description": "DDD, estados e municípios" },
+    { "name": "Calendário", "description": "Feriados nacionais" },
+    { "name": "Financeiro", "description": "PIX e taxas de juros" },
+    { "name": "Fiscal", "description": "Classificação NCM" },
+    { "name": "Domínios", "description": "Consulta de domínios registro.br" }
+  ],
+  "paths": {
+    "/cep/v1/{cep}": {
+      "get": {
+        "tags": ["CEP"],
+        "operationId": "buscarCep",
+        "summary": "Buscar endereço por CEP",
+        "description": "Consulta um CEP em múltiplos provedores e retorna o primeiro que responder com sucesso.",
+        "parameters": [
+          {
+            "name": "cep",
+            "in": "path",
+            "required": true,
+            "description": "CEP com 8 dígitos, sem máscara",
+            "schema": { "type": "string", "pattern": "^[0-9]{8}$" },
+            "example": "01310930"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CEP encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cep" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroCep" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/cep/v2/{cep}": {
+      "get": {
+        "tags": ["CEP"],
+        "operationId": "buscarCepComCoordenadas",
+        "summary": "Buscar endereço por CEP com geolocalização",
+        "description": "Igual à v1, com o acréscimo de fuso horário e coordenadas geográficas quando disponíveis.",
+        "parameters": [
+          {
+            "name": "cep",
+            "in": "path",
+            "required": true,
+            "description": "CEP com 8 dígitos, sem máscara",
+            "schema": { "type": "string", "pattern": "^[0-9]{8}$" },
+            "example": "01310930"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CEP encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CepV2" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroCep" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/cnpj/v1/{cnpj}": {
+      "get": {
+        "tags": ["Empresas"],
+        "operationId": "buscarCnpj",
+        "summary": "Consultar CNPJ",
+        "description": "Retorna os dados cadastrais da empresa na base da Receita Federal, incluindo quadro de sócios (QSA) e CNAEs.",
+        "parameters": [
+          {
+            "name": "cnpj",
+            "in": "path",
+            "required": true,
+            "description": "CNPJ com 14 dígitos, sem máscara",
+            "schema": { "type": "string", "pattern": "^[0-9]{14}$" },
+            "example": "19131243000197"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CNPJ encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Cnpj" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/banks/v1": {
+      "get": {
+        "tags": ["Bancos"],
+        "operationId": "listarBancos",
+        "summary": "Listar bancos",
+        "description": "Retorna todas as instituições bancárias registradas no Banco Central.",
+        "responses": {
+          "200": {
+            "description": "Lista de bancos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Banco" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/banks/v1/{code}": {
+      "get": {
+        "tags": ["Bancos"],
+        "operationId": "buscarBancoPorCodigo",
+        "summary": "Buscar banco por código",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Código de compensação do banco",
+            "schema": { "type": "integer" },
+            "example": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Banco encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Banco" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/ddd/v1/{ddd}": {
+      "get": {
+        "tags": ["Localidades"],
+        "operationId": "buscarDdd",
+        "summary": "Buscar estado e cidades por DDD",
+        "parameters": [
+          {
+            "name": "ddd",
+            "in": "path",
+            "required": true,
+            "description": "Código DDD com 2 dígitos",
+            "schema": { "type": "string", "pattern": "^[0-9]{2}$" },
+            "example": "11"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "DDD encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Ddd" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/feriados/v1/{ano}": {
+      "get": {
+        "tags": ["Calendário"],
+        "operationId": "listarFeriadosNacionais",
+        "summary": "Listar feriados nacionais do ano",
+        "description": "Retorna os feriados nacionais brasileiros. Não inclui feriados estaduais ou municipais.",
+        "parameters": [
+          {
+            "name": "ano",
+            "in": "path",
+            "required": true,
+            "description": "Ano com 4 dígitos",
+            "schema": { "type": "integer", "minimum": 1900, "maximum": 2199 },
+            "example": 2026
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de feriados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Feriado" }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/ibge/uf/v1": {
+      "get": {
+        "tags": ["Localidades"],
+        "operationId": "listarEstados",
+        "summary": "Listar estados brasileiros",
+        "responses": {
+          "200": {
+            "description": "Lista de estados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Uf" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/ibge/uf/v1/{code}": {
+      "get": {
+        "tags": ["Localidades"],
+        "operationId": "buscarEstado",
+        "summary": "Buscar estado por sigla ou código IBGE",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Sigla da UF (ex.: SP) ou código IBGE (ex.: 35)",
+            "schema": { "type": "string" },
+            "example": "SP"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Uf" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/ibge/municipios/v1/{uf}": {
+      "get": {
+        "tags": ["Localidades"],
+        "operationId": "listarMunicipiosPorUf",
+        "summary": "Listar municípios de um estado",
+        "parameters": [
+          {
+            "name": "uf",
+            "in": "path",
+            "required": true,
+            "description": "Sigla da UF",
+            "schema": { "type": "string", "pattern": "^[A-Za-z]{2}$" },
+            "example": "SP"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de municípios",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Municipio" }
+                }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/pix/v1/participants": {
+      "get": {
+        "tags": ["Financeiro"],
+        "operationId": "listarParticipantesPix",
+        "summary": "Listar participantes do PIX",
+        "description": "Instituições habilitadas no arranjo PIX, conforme publicação do Banco Central.",
+        "responses": {
+          "200": {
+            "description": "Lista de participantes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ParticipantePix" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/taxas/v1": {
+      "get": {
+        "tags": ["Financeiro"],
+        "operationId": "listarTaxas",
+        "summary": "Listar taxas de juros e índices",
+        "description": "Retorna taxas como SELIC, CDI e IPCA.",
+        "responses": {
+          "200": {
+            "description": "Lista de taxas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Taxa" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/taxas/v1/{sigla}": {
+      "get": {
+        "tags": ["Financeiro"],
+        "operationId": "buscarTaxa",
+        "summary": "Buscar taxa por sigla",
+        "parameters": [
+          {
+            "name": "sigla",
+            "in": "path",
+            "required": true,
+            "description": "Sigla da taxa ou índice",
+            "schema": { "type": "string" },
+            "example": "selic"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Taxa encontrada",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Taxa" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/ncm/v1": {
+      "get": {
+        "tags": ["Fiscal"],
+        "operationId": "listarNcm",
+        "summary": "Listar códigos NCM",
+        "description": "Retorna a tabela completa de Nomenclatura Comum do Mercosul. A resposta é extensa.",
+        "responses": {
+          "200": {
+            "description": "Lista de NCM",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Ncm" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/ncm/v1/{code}": {
+      "get": {
+        "tags": ["Fiscal"],
+        "operationId": "buscarNcm",
+        "summary": "Buscar NCM por código",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "description": "Código NCM, com ou sem pontuação",
+            "schema": { "type": "string" },
+            "example": "01012100"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NCM encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Ncm" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    },
+    "/registrobr/v1/{domain}": {
+      "get": {
+        "tags": ["Domínios"],
+        "operationId": "consultarDominioBr",
+        "summary": "Consultar disponibilidade de domínio .br",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "description": "Domínio a consultar",
+            "schema": { "type": "string" },
+            "example": "brasilapi.com.br"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Situação do domínio",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/DominioBr" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/ErroPadrao" },
+          "500": { "$ref": "#/components/responses/ErroInterno" }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "ErroPadrao": {
+        "description": "Recurso não encontrado ou requisição inválida",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Erro" }
+          }
+        }
+      },
+      "ErroCep": {
+        "description": "CEP não encontrado em nenhum provedor",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErroCep" }
+          }
+        }
+      },
+      "ErroInterno": {
+        "description": "Erro interno ou indisponibilidade da fonte de dados",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/Erro" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Cep": {
+        "type": "object",
+        "properties": {
+          "cep": { "type": "string", "example": "01310930" },
+          "state": { "type": "string", "example": "SP" },
+          "city": { "type": "string", "example": "São Paulo" },
+          "neighborhood": { "type": "string", "example": "Bela Vista" },
+          "street": { "type": "string", "example": "Avenida Paulista" },
+          "service": { "type": "string", "description": "Provedor que respondeu a consulta", "example": "open-cep" },
+          "ibge": {
+            "type": "object",
+            "properties": {
+              "city": { "type": "string", "example": "3550308" },
+              "state": { "type": "string", "example": "35" }
+            }
+          }
+        }
+      },
+      "CepV2": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Cep" },
+          {
+            "type": "object",
+            "properties": {
+              "timezoneName": { "type": "string", "example": "America/Sao_Paulo" },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string", "example": "Point" },
+                  "coordinates": {
+                    "type": "object",
+                    "properties": {
+                      "longitude": { "type": "string", "example": "-46.63611" },
+                      "latitude": { "type": "string", "example": "-23.5475" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Cnpj": {
+        "type": "object",
+        "properties": {
+          "cnpj": { "type": "string", "example": "19131243000197" },
+          "razao_social": { "type": "string" },
+          "nome_fantasia": { "type": "string" },
+          "porte": { "type": "string", "example": "DEMAIS" },
+          "codigo_porte": { "type": "integer" },
+          "natureza_juridica": { "type": "string" },
+          "codigo_natureza_juridica": { "type": "integer" },
+          "capital_social": { "type": "number" },
+          "situacao_cadastral": { "type": "integer" },
+          "descricao_situacao_cadastral": { "type": "string" },
+          "data_situacao_cadastral": { "type": "string", "format": "date" },
+          "motivo_situacao_cadastral": { "type": "integer" },
+          "descricao_motivo_situacao_cadastral": { "type": "string" },
+          "situacao_especial": { "type": "string" },
+          "data_situacao_especial": { "type": "string", "format": "date", "nullable": true },
+          "data_inicio_atividade": { "type": "string", "format": "date" },
+          "cnae_fiscal": { "type": "integer" },
+          "cnae_fiscal_descricao": { "type": "string" },
+          "cnaes_secundarios": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "codigo": { "type": "integer" },
+                "descricao": { "type": "string" }
+              }
+            }
+          },
+          "identificador_matriz_filial": { "type": "integer" },
+          "descricao_identificador_matriz_filial": { "type": "string" },
+          "descricao_tipo_de_logradouro": { "type": "string" },
+          "logradouro": { "type": "string" },
+          "numero": { "type": "string" },
+          "complemento": { "type": "string" },
+          "bairro": { "type": "string" },
+          "cep": { "type": "string" },
+          "uf": { "type": "string" },
+          "municipio": { "type": "string" },
+          "codigo_municipio": { "type": "integer" },
+          "codigo_municipio_ibge": { "type": "integer" },
+          "pais": { "type": "string", "nullable": true },
+          "codigo_pais": { "type": "integer", "nullable": true },
+          "nome_cidade_no_exterior": { "type": "string" },
+          "ddd_telefone_1": { "type": "string" },
+          "ddd_telefone_2": { "type": "string" },
+          "ddd_fax": { "type": "string" },
+          "email": { "type": "string", "nullable": true },
+          "ente_federativo_responsavel": { "type": "string" },
+          "qualificacao_do_responsavel": { "type": "integer" },
+          "opcao_pelo_simples": { "type": "boolean", "nullable": true },
+          "data_opcao_pelo_simples": { "type": "string", "format": "date", "nullable": true },
+          "data_exclusao_do_simples": { "type": "string", "format": "date", "nullable": true },
+          "opcao_pelo_mei": { "type": "boolean", "nullable": true },
+          "data_opcao_pelo_mei": { "type": "string", "format": "date", "nullable": true },
+          "data_exclusao_do_mei": { "type": "string", "format": "date", "nullable": true },
+          "regime_tributario": {
+            "type": "array",
+            "items": { "type": "object", "additionalProperties": true }
+          },
+          "qsa": {
+            "type": "array",
+            "description": "Quadro de sócios e administradores",
+            "items": { "$ref": "#/components/schemas/Socio" }
+          }
+        }
+      },
+      "Socio": {
+        "type": "object",
+        "properties": {
+          "nome_socio": { "type": "string" },
+          "cnpj_cpf_do_socio": { "type": "string", "description": "Parcialmente mascarado" },
+          "qualificacao_socio": { "type": "string" },
+          "codigo_qualificacao_socio": { "type": "integer" },
+          "identificador_de_socio": { "type": "integer" },
+          "data_entrada_sociedade": { "type": "string", "format": "date" },
+          "faixa_etaria": { "type": "string" },
+          "codigo_faixa_etaria": { "type": "integer" },
+          "pais": { "type": "string", "nullable": true },
+          "codigo_pais": { "type": "integer", "nullable": true },
+          "nome_representante_legal": { "type": "string" },
+          "cpf_representante_legal": { "type": "string" },
+          "qualificacao_representante_legal": { "type": "string" },
+          "codigo_qualificacao_representante_legal": { "type": "integer" }
+        }
+      },
+      "Banco": {
+        "type": "object",
+        "properties": {
+          "ispb": { "type": "string", "example": "00000000" },
+          "name": { "type": "string", "example": "BCO DO BRASIL S.A." },
+          "code": { "type": "integer", "nullable": true, "example": 1 },
+          "fullName": { "type": "string", "example": "Banco do Brasil S.A." },
+          "cnpj": { "type": "string", "nullable": true },
+          "localizacao_sede": { "type": "string", "nullable": true },
+          "headquarters_address": {
+            "type": "object",
+            "nullable": true,
+            "properties": {
+              "street": { "type": "string", "nullable": true },
+              "number": { "type": "string", "nullable": true },
+              "complement": { "type": "string", "nullable": true },
+              "district": { "type": "string", "nullable": true },
+              "city": { "type": "string", "nullable": true },
+              "state": { "type": "string", "nullable": true },
+              "zipCode": { "type": "string", "nullable": true }
+            }
+          },
+          "address_source": { "type": "string", "nullable": true },
+          "address_last_sync": { "type": "string", "format": "date-time", "nullable": true },
+          "address_confidence": { "type": "string", "nullable": true },
+          "logo_url": { "type": "string", "nullable": true }
+        }
+      },
+      "Ddd": {
+        "type": "object",
+        "properties": {
+          "state": { "type": "string", "example": "SP" },
+          "cities": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        }
+      },
+      "Feriado": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date", "example": "2026-01-01" },
+          "name": { "type": "string", "example": "Confraternização mundial" },
+          "type": { "type": "string", "example": "national" },
+          "weekday": { "type": "string", "example": "quinta-feira" }
+        }
+      },
+      "Uf": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "example": 35 },
+          "sigla": { "type": "string", "example": "SP" },
+          "nome": { "type": "string", "example": "São Paulo" },
+          "capital": { "type": "string", "example": "São Paulo" },
+          "populacao_estimada": { "type": "integer", "description": "Presente apenas na consulta individual" },
+          "periodo": { "type": "string", "description": "Ano de referência da população estimada" },
+          "regiao": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "integer", "example": 3 },
+              "sigla": { "type": "string", "example": "SE" },
+              "nome": { "type": "string", "example": "Sudeste" }
+            }
+          }
+        }
+      },
+      "Municipio": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string", "example": "ADAMANTINA" },
+          "codigo_ibge": { "type": "string", "example": "3500105" }
+        }
+      },
+      "ParticipantePix": {
+        "type": "object",
+        "properties": {
+          "ispb": { "type": "string", "example": "24313102" },
+          "nome": { "type": "string" },
+          "nome_reduzido": { "type": "string" },
+          "modalidade_participacao": { "type": "string", "example": "Provedor de Conta Transacional" },
+          "tipo_participacao": { "type": "string", "example": "Direta" },
+          "inicio_operacao": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "Taxa": {
+        "type": "object",
+        "properties": {
+          "nome": { "type": "string", "example": "Selic" },
+          "valor": { "type": "number", "example": 14 }
+        }
+      },
+      "Ncm": {
+        "type": "object",
+        "properties": {
+          "codigo": { "type": "string", "example": "0101.21.00" },
+          "descricao": { "type": "string", "example": "-- Reprodutores de raça pura" },
+          "data_inicio": { "type": "string", "format": "date" },
+          "data_fim": { "type": "string", "format": "date" },
+          "tipo_ato": { "type": "string", "example": "Res Camex" },
+          "numero_ato": { "type": "string", "example": "000272" },
+          "ano_ato": { "type": "string", "example": "2021" }
+        }
+      },
+      "DominioBr": {
+        "type": "object",
+        "properties": {
+          "status_code": { "type": "integer", "example": 2 },
+          "status": { "type": "string", "example": "REGISTERED" },
+          "fqdn": { "type": "string", "example": "brasilapi.com.br" },
+          "fqdnace": { "type": "string" },
+          "exempt": { "type": "boolean" },
+          "hosts": { "type": "array", "items": { "type": "string" } },
+          "publication-status": { "type": "string", "example": "published" },
+          "expires-at": { "type": "string", "format": "date-time" },
+          "suggestions": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "Erro": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" },
+          "type": { "type": "string" },
+          "name": { "type": "string" }
+        }
+      },
+      "ErroCep": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string", "example": "Todos os serviços de CEP retornaram erro." },
+          "type": { "type": "string", "example": "service_error" },
+          "name": { "type": "string", "example": "CepPromiseError" },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string" },
+                "message": { "type": "string" },
+                "service": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
