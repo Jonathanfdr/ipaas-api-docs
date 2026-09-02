@@ -217,7 +217,138 @@ Lembre que o tenant em uso é **produção**. Confirme antes de criar em lote.
 
 ---
 
-## 6. Tornar o app global
+## 6. Validar o app em um diagrama
+
+A validação real de um app é executá-lo num diagrama e conferir a rastreabilidade. Dá para montar o diagrama inteiro via API, sem arrastar caixas — o diagrama é apenas um JSON (`flow`).
+
+### 6.1 Estrutura do flow
+
+```json
+{
+  "async": false,
+  "start": "webhook-sync-trigger",
+  "functions": {},
+  "activities": {
+    "webhook-sync-trigger": {
+      "id": "webhook-sync-trigger", "name": "Webhook síncrono", "type": "WEBHOOK_SYNC",
+      "label": "Webhook síncrono", "positions": { "top": "9013px", "left": "9000px" },
+      "displayName": "backend.components.label.webhookSync", "configurations": {},
+      "connections": { "next": ["id1"], "previous": [], "finalConnections": [...] }
+    },
+    "id1": {
+      "id": "id1", "name": "<nome do app>", "type": "REST", "label": "<rótulo da caixa>",
+      "isCustom": true, "isDropped": true,
+      "positions": { "top": "9000px", "left": "9280px" },
+      "serviceId": "<id do serviço>",
+      "componentId": "<componentId do app>",
+      "componentResourceId": "<id do recurso importado>",
+      "originalComponentId": "<componentId do app>",
+      "configurations": {
+        "name": "<rótulo>",
+        "inPath": { "cep": "01310930" },
+        "inHeader": {},
+        "environmentId": "<id do ambiente>",
+        "applicationService": "<id do serviço>"
+      },
+      "connections": { "next": ["id2"], "previous": ["webhook-sync-trigger"], "finalConnections": [...] }
+    },
+    "id-synchronous-webhook-response2": {
+      "id": "id-synchronous-webhook-response2", "name": "Resposta síncrona",
+      "type": "WEBHOOK_RESPONSE", "label": "Resposta síncrona",
+      "positions": { "top": "9013px", "left": "..." },
+      "displayName": "backend.components.label.syncResponse",
+      "originalComponentId": "76c0da1d-ca69-4381-9124-d5d40d9eb106-synchronous-webhook-response",
+      "configurations": { "response": "{\n    \"CEP\": {{{id1}}}\n}\n" },
+      "connections": { "next": [], "previous": ["id1"] }
+    }
+  }
+}
+```
+
+Parâmetros de path do recurso vão em `configurations.inPath`, com a chave igual ao nome do parâmetro. Na resposta síncrona, `{{{idN}}}` interpola o payload inteiro daquele step.
+
+### 6.2 Salvar e publicar — verificado
+
+```
+POST /ipaas/api/v2/integrations/sketch/{integrationId}    # rascunho
+POST /ipaas/api/v2/integrations/publish/{integrationId}   # publica e ativa
+```
+
+Corpo: `{ name, description, flow, icons: [], dynamicIcons: [], descriptionEdit }`.
+
+**A rota é v2**, não v3 nem v4, apesar de o resto da API de integrações ser v3/v4. Em v3/v4 retorna `No static resource`.
+
+**`icons` e `dynamicIcons` são obrigatórios no publish.** Sem eles a resposta é **400 com corpo vazio**, sem nenhuma indicação do campo faltante. No sketch não são obrigatórios.
+
+`name` é obrigatório: sem ele o erro é uma violação de not-null do banco (`null value in column "name"`).
+
+### 6.3 Versionamento por revisão — importante
+
+Cada sketch/publish cria uma **nova revisão com novo `diagramId`**; o `integrationId` permanece. Consequências:
+
+Ao ler o flow para republicar, use `lastVersion=true`, senão você pega uma revisão antiga e publica o conteúdo errado (aconteceu aqui: publiquei uma versão desatualizada por ler sem esse filtro).
+
+```
+GET /ipaas/api/v3/integrations?id={integrationId}&lastVersion=true    # revisão atual
+GET /ipaas/api/v3/integrations?id={integrationId}&allVersions=true    # todas as revisões
+GET /ipaas/api/v3/integrations?diagramId={diagramId}                  # revisão específica
+```
+
+Só uma revisão fica `PUBLISHED`; as anteriores viram `ARCHIVED`. Nada é destruído, então republicar é reversível.
+
+### 6.4 Desenhar as ligações entre as caixas
+
+As conexões lógicas (`next`/`previous`) bastam para **executar**, mas as setas só aparecem no canvas se houver `finalConnections` com o path SVG:
+
+```json
+"finalConnections": [{
+  "connectionId": "id1#id2",
+  "connectionPath": "M {sx} {sy}\n    L {sx-32} {sy} L {sx} {sy}\n    L {mx} {sy} L {mx} {ey}\n    T {ex} {ey}"
+}]
+```
+
+`mx` é a média entre `sx` e `ex`. Offsets dos pontos de conexão, medidos a partir de `positions`:
+
+| Tipo | Saída | Entrada |
+|---|---|---|
+| `WEBHOOK_SYNC` | `left+66`, `top+32` | — |
+| `REST` | `left+79`, `top+45` | `left-9`, `top+45` |
+| `WEBHOOK_RESPONSE` | — | `left-8`, `top+32` |
+
+Para uma cadeia em linha reta, coloque os REST em `top` e o trigger/resposta em `top+13`, para que todos os pontos de conexão caiam no mesmo `y`.
+
+### 6.5 Executar e conferir a rastreabilidade — verificado
+
+A URL do webhook está em **Integrações → Listagem de Webhooks**:
+
+```
+POST https://api-ipaas.totvs.app/sync-hook/api/v1/integrations/{integrationId}/api-key/{apiKey}
+```
+
+O webhook assíncrono usa `/ipaas/api/v1/integrations/{id}/execute` com token.
+
+A resposta traz `{ messageId, result, status, timestamp }`. Para conferir a rastreabilidade:
+
+```
+GET /ipaas/api/v4/messages/{messageId}
+```
+
+Retorna `status` (`DONE`/`ERROR`), `executionTime`, `initialComponent`, `finalComponent`, `message` e `errorStack`. Como o fluxo é sequencial, `status: DONE` com `finalComponent` igual ao último nó comprova que **todos** os steps executaram — se algum falhasse, o fluxo pararia nele.
+
+Não encontrei endpoint público de detalhamento por componente (`/components`, `/steps`, `/traceability` retornam 500 ou 403). Para validar recurso por recurso, inclua todos os steps na resposta síncrona e verifique os payloads.
+
+### 6.6 Cuidados ao montar o diagrama de teste
+
+Cheque o tamanho das respostas antes de encadear. `/ncm/v1` da BrasilAPI devolve **2,95 MB** (tabela NCM completa); num fluxo em série com resposta agregada isso tende a estourar payload ou timeout. Foi substituído por `/ncm/v1/{code}`.
+
+Endpoints com parâmetro precisam de valor de teste em `configurations.inPath`, senão a chamada falha.
+
+Agregar todos os payloads na resposta é ótimo para validar, mas pesa: 15 recursos da BrasilAPI resultaram em **476 KB e 38s**. Com só os payloads pequenos, caiu para **7 KB e 9s**. Para uso recorrente, mantenha a resposta enxuta.
+
+---
+
+## 7. Tornar o app global
+
 
 Duas rotas diferentes, com implicações distintas:
 
@@ -229,7 +360,7 @@ Se o objetivo é distribuir para clientes específicos agora, use `share`. Se é
 
 ---
 
-## 7. Referência de endpoints
+## 8. Referência de endpoints
 
 ```
 # Aplicativos
@@ -278,12 +409,25 @@ POST   /ipaas/api/v3/rest-resources/import-swagger         # { applicationId, se
 POST   /ipaas/api/v3/rest-resources/schemas
 GET    /ipaas/api/v3/soap-resources?serviceId={id}
 POST   /ipaas/api/v3/soap-resources/import-wsdl            # { applicationId, serviceId, endPoint, soapEndPoint, update }
+
+# Diagramas (builder)
+GET    /ipaas/api/v3/integrations?id={integrationId}&lastVersion=true&fieldsReturn=id,diagramId,flow,name,status
+GET    /ipaas/api/v3/integrations?id={integrationId}&allVersions=true
+GET    /ipaas/api/v3/integrations?diagramId={diagramId}&fieldsReturn=flow
+POST   /ipaas/api/v2/integrations/sketch/{integrationId}   # { name, description, flow, icons, dynamicIcons }
+POST   /ipaas/api/v2/integrations/publish/{integrationId}  # idem; icons e dynamicIcons obrigatorios
+
+# Execução e rastreabilidade
+POST   https://api-ipaas.totvs.app/sync-hook/api/v1/integrations/{integrationId}/api-key/{apiKey}
+POST   /ipaas/api/v1/integrations/{integrationId}/execute  # assincrono, com token
+GET    /ipaas/api/v4/messages/{messageId}
+GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initialDate=...&finalDate=...
 ```
 
 ---
 
-## 8. Histórico
+## 9. Histórico
 
 | App | Auth | Operações | Resultado |
 |---|---|---|---|
-| BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados e validados |
+| BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
