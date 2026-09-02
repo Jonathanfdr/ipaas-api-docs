@@ -2,9 +2,35 @@
 
 Referência operacional para cadastrar um novo app de mercado no iPaaS. Contém a API real, os payloads que funcionam, as armadilhas já descobertas e o checklist de validação.
 
-**Como usar:** ao pedir o cadastro de um app novo, aponte para este arquivo. Ele substitui a fase de descoberta — a API abaixo foi mapeada a partir do bundle do front-end e validada com chamadas reais.
+Tudo marcado como **verificado** foi executado com sucesso. O que ainda não foi exercitado está marcado como **não verificado** — trate como hipótese, não como fato.
 
-Tudo marcado como **verificado** foi executado com sucesso. O que ainda não foi exercitado está marcado como **não verificado** — trate como hipótese.
+---
+
+## 0. Arranque rápido
+
+Se você está começando uma sessão nova, siga esta ordem:
+
+1. **Leia as seções 1, 2 e 4.** São o essencial: contexto, sequência de cadastro e as armadilhas do importador. As seções 3 (auth models), 8 (endpoints) e 10 (estado atual) são consulta.
+2. **Confirme que há um Chrome logado no iPaaS.** Todas as chamadas de API são feitas de dentro da página autenticada, usando o token do cookie (seção 1). Sem isso, nada funciona. Se a sessão caiu, peça ao usuário para logar.
+3. **Confirme em qual tenant está trabalhando.** O tenant usado até agora é **produção** (`iPaaS Gateway`). Criar apps ali é reversível, mas confirme antes de criar em lote.
+4. **Veja o estado atual na seção 10** para não recriar o que já existe.
+5. **Escolha o próximo app na fila da seção 11** ou siga o que o usuário pedir.
+6. **Siga a receita da seção 5.**
+
+Comandos do repositório:
+
+```bash
+python3 tools/slice_spec.py <spec-origem> <app> "Tag=slug" ...   # recorta spec grande por tag
+python3 tools/dereference.py <app>                                # gera os *.ipaas.json
+python3 tools/dereference.py --all
+```
+
+Regras que evitam a maior parte do retrabalho:
+
+- **Nunca fixe `diagramId`.** Cada save cria nova revisão; sempre leia com `lastVersion=true` (seção 6.3).
+- **Não confie no `testAccount`** para validar credencial (seção 2.3).
+- **O corpo de POST/PUT não vem na importação**; use `configurations.inBody` no diagrama (seções 4 e 6.1).
+- **Valide executando o diagrama**, não só importando.
 
 ---
 
@@ -95,6 +121,8 @@ Os serviços ficam vinculados ao **pai**, então trocar de ambiente não exige r
 ```
 GET /ipaas/api/v2/environments/?applicationId={id}&expand=environmentsChild&expand=authModels&expand=accounts
 ```
+
+O ambiente custom do Asaas foi criado **pela interface**, não pela API. O payload para criar um custom com filhos via API **não foi verificado** — provavelmente envolve `custom: true` no pai e algum vínculo de parent nos filhos, mas não teste isso em cima de um ambiente que já tem serviços importados. Se precisar de ambiente custom, o caminho seguro hoje é pedir ao usuário para criar pela interface e depois ler os ids com o GET acima.
 
 ### 2.3 Criar a conta — verificado
 
@@ -242,7 +270,7 @@ Isso abre caminho para gerar o corpo a partir do schema da spec, mas ainda não 
 
 **O `securityScheme` da spec vira header no recurso.** Se a spec declara `securitySchemes` com `in: header` (o Asaas usa `access_token`), o importador cria esse header no `inputSchema` do recurso. Não conflita com a conta `API_KEY`, que injeta o header em tempo de execução, mas explica por que o campo aparece duplicado na interface.
 
- Após um push, a URL de branch pode servir a versão antiga, e query string não contorna. Para importar algo recém-publicado, use a URL por commit SHA, que é imutável:
+**Cache do `raw.githubusercontent` tem TTL de alguns minutos.** Após um push, a URL de branch pode servir a versão antiga, e query string não contorna. Para importar algo recém-publicado, use a URL por commit SHA, que é imutável:
 
 ```
 https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/<sha>/<app>/openapi.ipaas.json
@@ -458,7 +486,6 @@ Agregar todos os payloads na resposta é ótimo para validar, mas pesa: 15 recur
 
 ## 7. Tornar o app global
 
-
 Duas rotas diferentes, com implicações distintas:
 
 **`POST /ipaas/api/v4/applications/{id}/request-native`** (corpo `null`) — solicita que o app entre no catálogo nativo. É uma **solicitação**, sujeita a aprovação de terceiros; não é um switch. O app passa a ter `requestedNative: true`.
@@ -527,6 +554,7 @@ POST   /ipaas/api/v2/integrations/sketch/{integrationId}   # { name, description
 POST   /ipaas/api/v2/integrations/publish/{integrationId}  # idem; icons e dynamicIcons obrigatorios
 
 # Execução e rastreabilidade
+GET    /ipaas/api/v3/keys?integrationId={integrationId}    # apiKey do webhook
 POST   https://api-ipaas.totvs.app/sync-hook/api/v1/integrations/{integrationId}/api-key/{apiKey}
 POST   /ipaas/api/v1/integrations/{integrationId}/execute  # assincrono, com token
 GET    /ipaas/api/v4/messages/{messageId}
@@ -541,3 +569,71 @@ GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initia
 |---|---|---|---|
 | BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
 | Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados; conta criada e validada; diagrama com POST (`inBody`) e encadeamento entre steps executado `DONE`, criando cliente e cobrança reais no sandbox |
+
+---
+
+## 10. Estado atual no tenant
+
+Levantado por API. Use como referência para não recriar o que existe — mas **confirme com um GET** antes de assumir, porque o tenant é compartilhado e pode ter mudado.
+
+### BrasilAPI — `NO_AUTH`
+
+| Item | Id |
+|---|---|
+| App (`componentId`) | `a7b79983-1a4a-4271-a0ce-9a7d077fcba8` |
+| Ambiente `Produção` (`https://brasilapi.com.br/api`) | `a67b7353-c0a8-40e6-a14b-df4e7faf0ed2` |
+| Serviço `Dados Públicos` (16 recursos) | `91f002ba-f6df-41e7-987f-866f51a786b8` |
+| Diagrama `Valida BrasilAPI` (`integrationId`) | `d14a9502-0731-4c55-a16c-c8623ec29b0d` |
+
+Sem contas (não precisa, é `NO_AUTH`).
+
+### Asaas — `API_KEY` no header `access_token`
+
+| Item | Id |
+|---|---|
+| App (`componentId`) | `38f9ca5d-effe-4dfa-bd2a-b04146c29ffe` |
+| Ambiente custom (`https://{environment}.asaas.com`) | `6bb42135-d8dd-4680-8023-f2f80782c214` |
+| └ filho `Sandbox` (`https://api-sandbox.asaas.com`) | `6a1dd8e8-587d-4c7d-9407-633f0ec20510` |
+| Conta `Sandbox` | `5424ca20-fb6c-4b12-9e59-bc900141b89c` |
+| Serviço `Clientes` (7 recursos) | `a0a062ca-aba7-421e-8da1-1970a0570656` |
+| Serviço `Cobranças` (20 recursos) | `4b854fcc-1e4a-454e-9119-e39a21e0d2e7` |
+| Serviço `Assinaturas` (14 recursos) | `2b60d0e2-6aab-472d-977e-4db1052cfe32` |
+| Diagrama `Valida Asaas` (`integrationId`) | `8a277176-8cf0-4278-bb2f-4c4f6f00943f` |
+
+Nos steps do diagrama use o **ambiente filho** (`6a1dd8e8`), que tem URL concreta, não o pai com placeholder.
+
+A chave de sandbox usada na conta foi compartilhada em chat e **deve ser rotacionada**. Se a execução começar a dar 401, é provável que tenha sido trocada — peça a nova ao usuário e atualize a conta com `PUT /ipaas/api/v3/accounts/{id}`.
+
+O sandbox do Asaas já tem um cliente (`cus_000008990297`) e uma cobrança (`pay_5t28kq86iwolagvm`) criados pelo teste. Se for reexecutar o diagrama de validação, ele cria novos registros a cada execução — o CPF `11144477735` é aceito repetidamente, mas a listagem vai acumulando.
+
+---
+
+## 11. Fila de próximos apps
+
+Ordenada por custo de integração. O critério é o modelo de autenticação (seção 3) e a existência de spec oficial.
+
+### Padrões de auth ainda não exercitados
+
+| Padrão | Candidatos | Observação |
+|---|---|---|
+| `TOKEN` | SendGrid, Notion, Airtable, Asana | Bearer simples; SendGrid e Asana têm OpenAPI oficial |
+| `BASIC` | Twilio, Zendesk, Jira Cloud | Twilio usa Account SID + Auth Token e tem spec por produto; Zendesk e Jira usam e-mail + API token |
+| `API_KEY` em `query` | Trello, Pipedrive | Já exercitamos `API_KEY` em header; em query muda só o `addTo` |
+
+Fechar `TOKEN` e `BASIC` cobriria os quatro padrões viáveis, deixando o catálogo pronto para escalar.
+
+### Brasileiros relevantes
+
+Mercado Pago (Bearer), Vindi e Iugu (`BASIC`), Tiny (token em query), Melhor Envio, Conta Azul, Nuvemshop.
+
+### Evitar por enquanto
+
+**Omie** — manda `app_key`/`app_secret` no corpo da requisição, e não existe auth model para isso (seção 3).
+
+**Bling v3** — `OAUTH2_CODE`, exige interação de navegador para obter o `code`; não é automatizável em lote.
+
+**Monday.com** — GraphQL, um único endpoint POST; o modelo de recursos REST do iPaaS não se aplica bem.
+
+### APIs grandes que exigem recorte
+
+Stripe, GitHub e Salesforce publicam spec oficial com centenas de operações. Use `tools/slice_spec.py` e crie um serviço por domínio; nunca importe a spec inteira em um serviço só.

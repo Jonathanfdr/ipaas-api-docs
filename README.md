@@ -8,7 +8,15 @@ Cada app tem uma pasta com a spec, a documentação de cadastro e os metadados. 
 
 ## Para cadastrar um app novo
 
-Leia o **[Playbook de cadastro no iPaaS](./IPAAS-PLAYBOOK.md)**. Ele tem a API completa, os payloads que funcionam, os IDs dos modelos de autenticação, as armadilhas do importador e o checklist de validação.
+Leia o **[Playbook de cadastro no iPaaS](./IPAAS-PLAYBOOK.md)**, começando pela seção **0 (Arranque rápido)**.
+
+O playbook tem a API completa, os payloads que funcionam, os IDs dos modelos de autenticação, as armadilhas do importador, o checklist de validação, o **estado atual do tenant** (o que já existe, com IDs) e a **fila de próximos apps**.
+
+Em resumo, o caminho é:
+
+```
+Aplicativo → Ambiente → [Conta] → Serviço → Importar Swagger → Validar → Diagrama
+```
 
 ## Apps
 
