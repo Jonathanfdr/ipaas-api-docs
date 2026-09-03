@@ -27,7 +27,7 @@ python3 tools/dereference.py --all
 
 Regras que evitam a maior parte do retrabalho:
 
-- **Nunca fixe `diagramId`.** Cada save cria nova revisão; sempre leia com `lastVersion=true` (seção 6.3).
+- **Nunca fixe `diagramId`.** Cada save cria nova revisão; sempre leia com `lastVersion=true` (seção 6.4).
 - **Não confie no `testAccount`** para validar credencial (seção 2.3).
 - **O corpo de POST/PUT não vem na importação**; use `configurations.inBody` no diagrama (seções 4 e 6.1).
 - **Valide executando o diagrama**, não só importando.
@@ -389,7 +389,25 @@ Os grupos do formulário do componente são `inPath`, `inQuery`, `inHeader` e `i
 
 Para apps com autenticação, o step precisa de `accountId` — ou seja, **a conta tem que existir antes de montar o diagrama**. Sem ela não há como referenciar a credencial no step.
 
-### 6.2 Salvar e publicar — verificado
+### 6.2 Criar o diagrama — verificado
+
+**Não existe endpoint de API para criar uma integração.** `POST` em `/v2/integrations`, `/v3/integrations`, `/v1/integrations` e variantes retorna `Request method 'POST' is not supported`; `/v3/diagrams` retorna 403. Fazer `sketch` num UUID inédito falha com `404 FLUIG_CONNECTOR_INTEGRATION_404`.
+
+Integrações vivem dentro de um **projeto**, e a criação é pela interface:
+
+```
+Projetos → <projeto> → Criar diagrama → Em branco → nome e descrição → Criar diagrama
+```
+
+O diagrama nasce com status `IN_SKETCH`. Pegue o `integrationId` com um GET logo depois:
+
+```
+GET /ipaas/api/v3/integrations?page=1&pageSize=50&lastVersion=true&fieldsReturn=id,diagramId,name,status
+```
+
+A partir daí todo o resto (montar o flow, salvar, publicar, executar) é API. O projeto usado para validações é `Validação apps` (`b977af3c-db40-4586-bb47-80c4b3b45d89`).
+
+### 6.3 Salvar e publicar — verificado
 
 ```
 POST /ipaas/api/v2/integrations/sketch/{integrationId}    # rascunho
@@ -406,7 +424,7 @@ Corpo: `{ name, description, flow, icons: [], dynamicIcons: true, descriptionEdi
 
 `name` é obrigatório: sem ele o erro é uma violação de not-null do banco (`null value in column "name"`).
 
-### 6.3 Versionamento por revisão — importante
+### 6.4 Versionamento por revisão — importante
 
 Cada sketch/publish cria uma **nova revisão com novo `diagramId`**; o `integrationId` permanece. Consequências:
 
@@ -420,7 +438,7 @@ GET /ipaas/api/v3/integrations?diagramId={diagramId}                  # revisão
 
 Só uma revisão fica `PUBLISHED`; as anteriores viram `ARCHIVED`. Nada é destruído, então republicar é reversível.
 
-### 6.4 Desenhar as ligações entre as caixas
+### 6.5 Desenhar as ligações entre as caixas
 
 As conexões lógicas (`next`/`previous`) bastam para **executar**, mas as setas só aparecem no canvas se houver `finalConnections` com o path SVG:
 
@@ -441,7 +459,7 @@ As conexões lógicas (`next`/`previous`) bastam para **executar**, mas as setas
 
 Para uma cadeia em linha reta, coloque os REST em `top` e o trigger/resposta em `top+13`, para que todos os pontos de conexão caiam no mesmo `y`.
 
-### 6.5 Executar e conferir a rastreabilidade — verificado
+### 6.6 Executar e conferir a rastreabilidade — verificado
 
 A `apiKey` do webhook sai direto da API, sem precisar abrir a tela de webhooks:
 
@@ -484,7 +502,7 @@ Não encontrei endpoint público de detalhamento por componente (`/components`, 
 
 A interpolação acontece **antes** do envio: a rastreabilidade registra o corpo já com o valor resolvido.
 
-### 6.6 Cuidados ao montar o diagrama de teste
+### 6.7 Cuidados ao montar o diagrama de teste
 
 Cheque o tamanho das respostas antes de encadear. `/ncm/v1` da BrasilAPI devolve **2,95 MB** (tabela NCM completa); num fluxo em série com resposta agregada isso tende a estourar payload ou timeout. Foi substituído por `/ncm/v1/{code}`.
 
@@ -579,7 +597,7 @@ GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initia
 |---|---|---|---|
 | BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
 | Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados; conta criada e validada; diagrama com POST (`inBody`) e encadeamento entre steps executado `DONE`, criando cliente e cobrança reais no sandbox |
-| Brevo | `API_KEY` (header `api-key`) | 68 em 4 serviços | 68 recursos importados a partir da spec oficial convertida de Swagger 2.0; **conta e diagrama pendentes** (falta a chave de API) |
+| Brevo | `API_KEY` (header `api-key`) | 68 em 4 serviços | 68 recursos importados a partir da spec oficial convertida de Swagger 2.0; conta criada; diagrama com 6 steps em 3 serviços executado `DONE`, incluindo `POST /smtp/email` em modo sandbox. Serviço `SMS Transacional` **não validado**: plano gratuito não tem crédito de SMS e todos os endpoints respondem 500 |
 
 ---
 
@@ -627,10 +645,16 @@ O sandbox do Asaas já tem um cliente (`cus_000008990297`) e uma cobrança (`pay
 | Serviço `E-mails Transacionais` (22 recursos) | `322bff7d-0083-4424-9ba5-85f10445346a` |
 | Serviço `Campanhas de E-mail` (13 recursos) | `25003ddf-8ec3-42e4-bf73-e88a3dcc4daa` |
 | Serviço `SMS Transacional` (4 recursos) | `af9d7b37-8466-4dc1-98cc-779fecb9321d` |
+| Conta `Produção` | `b03e1504-3c2a-433d-8eab-7b284e20a9ee` |
+| Diagrama `Valida Brevo` (`integrationId`) | `2fac8db9-52b2-4cdc-84a1-c64aac779c44` |
 
-**Sem conta ainda** — falta a chave de API, que se gera em https://app.brevo.com/settings/keys/api. Sem conta as chamadas dão 401 e não há como montar o diagrama de validação (o step REST exige `accountId`).
+A chave usada na conta foi compartilhada em chat e **deve ser rotacionada**. Se a execução começar a dar 401, é provável que tenha sido trocada — peça a nova e atualize com `PUT /ipaas/api/v3/accounts/{id}`.
 
-Para validar envio sem disparar e-mail de verdade, o `POST /smtp/email` aceita `"headers": { "X-Sib-Sandbox": "drop" }` **dentro do corpo**. Ver `brevo/README.md`.
+**A Brevo tem allowlist de IP no lado do fornecedor.** Com ela restritiva, a API responde `401` com `unrecognised IP address <ip>` e o `code: unauthorized`, mesmo com chave válida — vale para qualquer cliente, inclusive o iPaaS. Configuração em `app.brevo.com/security/authorised_ips`. Depois de o usuário liberar, as chamadas passaram tanto da máquina local quanto do iPaaS; **não foi verificado** se isso ocorreu porque a autorização automática foi ligada ou porque o bloqueio foi desativado. Se um app começar a dar 401 do nada, verifique se o fornecedor tem esse tipo de restrição antes de suspeitar da credencial.
+
+**Os endpoints de SMS não funcionam no plano gratuito.** `GET /transactionalSMS/statistics/*` responde `500 invalid_request` com ou sem parâmetros. O `plan` da conta mostra só `{"type":"free","credits":300,"creditsType":"sendLimit"}`, sem crédito de SMS. É limitação da conta, não da spec — o serviço está importado e correto, só não dá para exercitar.
+
+**O `POST /smtp/email` em modo sandbox funcionou via `inBody`.** Basta incluir `"headers": { "X-Sib-Sandbox": "drop" }` dentro do corpo. A Brevo devolve `messageId` real do relay, não envia e-mail e não registra a chamada nas estatísticas (`requests: 0` no dia). É a forma barata de validar operações de escrita sem efeito colateral.
 
 ### API BRASIL (app nativo TOTVS) — `NO_AUTH`
 

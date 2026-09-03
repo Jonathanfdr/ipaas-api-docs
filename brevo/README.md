@@ -104,21 +104,44 @@ Depois da conversão, a spec atende aos requisitos do importador: as 233 operaç
 
 ## Validação
 
-Para exercitar o envio sem disparar e-mail de verdade, o `POST /smtp/email` aceita o header `X-Sib-Sandbox: drop` **dentro do corpo**, em `headers`. A resposta é `201` com `messageId`, nenhum e-mail é enviado e nenhum log é criado na conta.
+Validado em diagrama (`Valida Brevo`, projeto `Validação apps`): 6 steps em série cobrindo 3 dos 4 serviços, execução `DONE` em 9,4s.
 
-Como o importador do iPaaS não traz o corpo de POST/PUT, o corpo tem que ser montado em `configurations.inBody` no diagrama. Para o envio em modo sandbox:
+| Step | Operação | Resultado |
+|---|---|---|
+| 1 | `GET /contacts` | 1 contato, com `attributes` e `listIds` |
+| 2 | `GET /contacts/lists` | 1 lista, com contadores de inscritos |
+| 3 | `GET /smtp/templates` | vazio (conta nova) |
+| 4 | `POST /smtp/email` | `messageId` do relay, sem envio real |
+| 5 | `GET /smtp/statistics/aggregatedReport` | 16 contadores do período |
+| 6 | `GET /emailCampaigns` | vazio (conta nova) |
+
+O envio usa o **modo sandbox**: o `POST /smtp/email` aceita `X-Sib-Sandbox: drop` **dentro do corpo**, em `headers`. A resposta é `201` com `messageId`, nenhum e-mail é enviado, nenhum log é criado e a chamada não conta nas estatísticas (`requests: 0` no dia da execução).
+
+Como o importador do iPaaS não traz o corpo de POST/PUT, o corpo vai em `configurations.inBody` no diagrama:
 
 ```json
 {
-  "sender": { "name": "Teste", "email": "<remetente verificado na conta>" },
+  "sender": { "name": "TOTVS", "email": "<remetente verificado na conta>" },
   "to": [{ "email": "<destinatario>", "name": "Destinatário" }],
-  "subject": "Teste iPaaS",
-  "htmlContent": "<p>Teste</p>",
+  "subject": "Teste iPaaS Brevo",
+  "htmlContent": "<p>Validação do app Brevo no iPaaS</p>",
   "headers": { "X-Sib-Sandbox": "drop" }
 }
 ```
 
-O remetente precisa estar verificado na conta Brevo, senão o envio falha independentemente do modo sandbox.
+O remetente precisa estar verificado na conta Brevo (`GET /senders` lista os ativos), senão o envio falha independentemente do modo sandbox.
+
+### O que não foi validado
+
+O serviço `SMS Transacional` **não pôde ser exercitado**. Todos os endpoints respondem `500 invalid_request`, com ou sem parâmetros, porque o plano gratuito não tem crédito de SMS — `GET /account` mostra apenas `{"type":"free","credits":300,"creditsType":"sendLimit"}`. Os 4 recursos estão importados e corretos; falta uma conta com SMS habilitado para confirmar os schemas.
+
+## Restrição de IP no lado da Brevo
+
+A Brevo tem allowlist de IP própria, independente da chave. Com ela restritiva, **qualquer** cliente recebe `401` com `unrecognised IP address <ip>` e `code: unauthorized`, mesmo com chave válida — inclusive o iPaaS, cujo IP de saída você não controla.
+
+Configuração em https://app.brevo.com/security/authorised_ips, com três modos: autorização automática (a Brevo libera após checagem), notificação por e-mail (aprovação manual por IP) e bloqueio de IPs desconhecidos.
+
+Se um fluxo começar a dar 401 sem explicação, verifique essa tela antes de suspeitar da credencial.
 
 ## Domínios ainda não importados
 
@@ -132,7 +155,7 @@ O CRM da Brevo (`Deals`, `Companies`, `Tasks`, `Notes`) é o complemento mais ó
 
 ## Observações
 
-Os schemas vêm da **spec oficial do fornecedor**, convertida de Swagger 2.0. Não foram confirmados contra respostas reais da API, diferente da BrasilAPI (schemas derivados de chamadas) e do Asaas (spec oficial conferida contra o sandbox).
+Os schemas vêm da **spec oficial do fornecedor**, convertida de Swagger 2.0. Os retornos de contatos, listas, estatísticas de e-mail e campanhas foram confirmados na execução do diagrama; os demais não foram conferidos contra respostas reais.
 
 `GET /smtp/emailStatus/{batchId}` e `GET /smtp/emailStatus/{messageId}` são o mesmo path com nomes de parâmetro diferentes na spec oficial. Mantido como está para não divergir da origem, mas no iPaaS os dois recursos apontam para a mesma rota.
 
