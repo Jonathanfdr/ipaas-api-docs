@@ -1,0 +1,3357 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Trello REST API - Cartões",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://api.trello.com/1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Cartões"
+    }
+  ],
+  "paths": {
+    "/cards": {
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Create a new Card",
+        "description": "Create a new card. Query parameters may also be replaced with a JSON request body instead.",
+        "operationId": "post-cards",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name for the card",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "desc",
+            "in": "query",
+            "description": "The description for the card",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "The position of the new card. `top`, `bottom`, or a positive float",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ]
+                },
+                {
+                  "type": "number",
+                  "format": "float",
+                  "minimum": 0
+                }
+              ]
+            }
+          },
+          {
+            "name": "due",
+            "in": "query",
+            "description": "A due date for the card",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "The start date of a card, or `null`",
+            "required": false,
+            "schema": {
+              "nullable": true,
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dueComplete",
+            "in": "query",
+            "description": "Whether the status of the card is complete",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "idList",
+            "in": "query",
+            "description": "The ID of the list the card should be created in",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idMembers",
+            "in": "query",
+            "description": "Comma-separated list of member IDs to add to the card",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TrelloID"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "idLabels",
+            "in": "query",
+            "description": "Comma-separated list of label IDs to add to the card",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/TrelloID"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "urlSource",
+            "in": "query",
+            "description": "A URL starting with `http://` or `https://`. The URL will be attached to the card upon creation.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "url"
+            }
+          },
+          {
+            "name": "fileSource",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "mimeType",
+            "in": "query",
+            "description": "The mimeType of the attachment. Max length 256",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idCardSource",
+            "in": "query",
+            "description": "The ID of a card to copy into the new card",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "keepFromSource",
+            "in": "query",
+            "description": "If using `idCardSource` you can specify which properties to copy over. `all` or comma-separated list of: `attachments,checklists,customFields,comments,due,start,labels,members,start,stickers`",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "all",
+                "attachments",
+                "checklists",
+                "comments",
+                "customFields",
+                "due",
+                "start",
+                "labels",
+                "members",
+                "start",
+                "stickers"
+              ]
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "For use with/by the Map View",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationName",
+            "in": "query",
+            "description": "For use with/by the Map View",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "coordinates",
+            "in": "query",
+            "description": "For use with/by the Map View. Should take the form latitude,longitude",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cardRole",
+            "in": "query",
+            "description": "For displaying cards in different ways based on the card name. Board cards must have a name that is a link to a Trello board. Mirror cards must have a name that is a link to a Trello card.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "separator",
+                "board",
+                "mirror",
+                "link"
+              ],
+              "nullable": true
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get a Card",
+        "description": "Get a card by its ID",
+        "operationId": "get-cards-id",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of [fields](/cloud/trello/guides/rest-api/object-definitions/). **Defaults**: `badges, checkItemStates, closed, dateLastActivity, desc, descData, due, start, idBoard, idChecklists, idLabels, idList, idMembers, idShort, idAttachmentCover, manualCoverAttachment, labels, name, pos, shortUrl, url`",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "actions",
+            "in": "query",
+            "description": "See the [Actions Nested Resource](/cloud/trello/guides/rest-api/nested-resources/#actions-nested-resource)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "`true`, `false`, or `cover`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "cover"
+                  ]
+                },
+                {
+                  "type": "boolean"
+                }
+              ],
+              "default": false
+            }
+          },
+          {
+            "name": "attachment_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of attachment [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          },
+          {
+            "name": "members",
+            "in": "query",
+            "description": "Whether to return member objects for members on the card",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "member_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of member [fields](/cloud/trello/guides/rest-api/object-definitions/). **Defaults**: `avatarHash, fullName, initials, username`",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "membersVoted",
+            "in": "query",
+            "description": "Whether to return member objects for members who voted on the card",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "memberVoted_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of member [fields](/cloud/trello/guides/rest-api/object-definitions/). **Defaults**: `avatarHash, fullName, initials, username`",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "checkItemStates",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "checklists",
+            "in": "query",
+            "description": "Whether to return the checklists on the card. `all` or `none`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none"
+            }
+          },
+          {
+            "name": "checklist_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of `idBoard,idCard,name,pos`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          },
+          {
+            "name": "board",
+            "in": "query",
+            "description": "Whether to return the board object the card is on",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "board_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of board [fields](/cloud/trello/guides/rest-api/object-definitions/#board-object). **Defaults**: `name, desc, descData, closed, idOrganization, pinned, url, prefs`",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "list",
+            "in": "query",
+            "description": "See the [Lists Nested Resource](/cloud/trello/guides/rest-api/nested-resources/)",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "pluginData",
+            "in": "query",
+            "description": "Whether to include pluginData on the card with the response",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "stickers",
+            "in": "query",
+            "description": "Whether to include sticker models with the response",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "sticker_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of sticker [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          },
+          {
+            "name": "customFieldItems",
+            "in": "query",
+            "description": "Whether to include the customFieldItems",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Update a Card",
+        "description": "Update a card. Query parameters may also be replaced with a JSON request body instead.",
+        "operationId": "put-cards-id",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The new name for the card",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "desc",
+            "in": "query",
+            "description": "The new description for the card",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "closed",
+            "in": "query",
+            "description": "Whether the card should be archived (closed: true)",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "idMembers",
+            "in": "query",
+            "description": "Comma-separated list of member IDs",
+            "required": false,
+            "explode": false,
+            "style": "form",
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idAttachmentCover",
+            "in": "query",
+            "description": "The ID of the image attachment the card should use as its cover, or null for none",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idList",
+            "in": "query",
+            "description": "The ID of the list the card should be in",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idLabels",
+            "in": "query",
+            "description": "Comma-separated list of label IDs",
+            "required": false,
+            "explode": false,
+            "style": "form",
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idBoard",
+            "in": "query",
+            "description": "The ID of the board the card should be on",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "The position of the card in its list. `top`, `bottom`, or a positive float",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ]
+                },
+                {
+                  "type": "number",
+                  "format": "float"
+                }
+              ]
+            }
+          },
+          {
+            "name": "due",
+            "in": "query",
+            "description": "When the card is due, or `null`",
+            "required": false,
+            "schema": {
+              "nullable": true,
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "start",
+            "in": "query",
+            "description": "The start date of a card, or `null`",
+            "required": false,
+            "schema": {
+              "nullable": true,
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dueComplete",
+            "in": "query",
+            "description": "Whether the status of the card is complete",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "subscribed",
+            "in": "query",
+            "description": "Whether the member is should be subscribed to the card",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "address",
+            "in": "query",
+            "description": "For use with/by the Map View",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "locationName",
+            "in": "query",
+            "description": "For use with/by the Map View",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "coordinates",
+            "in": "query",
+            "description": "For use with/by the Map View. Should be latitude,longitude",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cover",
+            "in": "query",
+            "description": "Updates the card's cover\n | Option | Values | About |\n |--------|--------|-------|\n | color | `pink`, `yellow`, `lime`, `blue`, `black`, `orange`, `red`, `purple`, `sky`, `green` | Makes the cover a solid color . |\n | brightness | `dark`, `light` | Determines whether the text on the cover should be dark or light.\n | url | An unsplash URL: https://images.unsplash.com | Used if making an image the cover. Only Unsplash URLs work.\n | idAttachment | ID of an attachment on the card | Used if setting an attached image as the cover. |\n | size | `normal`, `full` | Determines whether to show the card name on the cover, or below it. |\n \n `brightness` can be sent alongside any of the other parameters, but all of the other parameters are mutually exclusive; you can not have the cover be a `color` and an `idAttachment` at the same time. \n \n On the brightness options, setting it to light will make the text on the card cover dark:\n ![](/cloud/trello/images/rest/cards/cover-brightness-dark.png)\n \n And vice versa, setting it to dark will make the text on the card cover light: \n ![](/cloud/trello/images/rest/cards/cover-brightness-light.png) ",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "object",
+                  "description": "An object containing information regarding the card's cover \n `brightness` can be sent alongside any of the other parameters, but all of the other parameters are mutually exclusive; you can not have the cover be a color and an `idAttachment` at the same time.",
+                  "properties": {
+                    "color": {
+                      "type": "string",
+                      "enum": [
+                        "pink",
+                        "yellow",
+                        "lime",
+                        "blue",
+                        "black",
+                        "orange",
+                        "red",
+                        "purple",
+                        "sky",
+                        "green"
+                      ],
+                      "description": "One of: `pink, yellow, lime, blue, black, orange, red, purple, sky, green`",
+                      "example": "pink"
+                    },
+                    "brightness": {
+                      "type": "string",
+                      "enum": [
+                        "dark",
+                        "light"
+                      ],
+                      "description": "Determines whether the text on the cover should be dark or light. Setting it to `light` will make the text on the card cover dark. And vice versa, setting it to dark will make the text on the card cover light"
+                    },
+                    "url": {
+                      "type": "string",
+                      "format": "url",
+                      "description": "Used if making an image the cover. Only Unsplash URLs (https://images.unsplash.com/) work."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Delete a Card",
+        "description": "Delete a Card",
+        "operationId": "delete-cards-id",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/{field}": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get a field on a Card",
+        "description": "Get a specific property of a card",
+        "operationId": "get-cards-id-field",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "description": "The desired field.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/CardFields"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Card"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards/{id}/actions": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get Actions on a Card",
+        "description": "List the Actions on a Card. See [Nested Resources](/cloud/trello/guides/rest-api/nested-resources/) for more information.",
+        "operationId": "get-cards-id-actions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "A comma-separated list of [action types](https://developer.atlassian.com/cloud/trello/guides/rest-api/action-types/).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "commentCard, updateCard:idList"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page of results for actions. Each page of results has 50 actions.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "maximum": 19,
+              "default": 0
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Action"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards/{id}/attachments": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get Attachments on a Card",
+        "description": "List the attachments on a card",
+        "operationId": "get-cards-id-attachments",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of attachment [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Use `cover` to restrict to just the cover attachment",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "false"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/Attachment"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Create Attachment On Card",
+        "description": "Create an Attachment to a Card. See https://glitch.com/~trello-attachments-api for code examples. You may need to remix the project in order to view it.",
+        "operationId": "post-cards-id-attachments",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the attachment. Max length 256.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "file",
+            "in": "query",
+            "description": "The file to attach, as multipart/form-data",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          {
+            "name": "mimeType",
+            "in": "query",
+            "description": "The mimeType of the attachment. Max length 256",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "description": "A URL to attach. Must start with `http://` or `https://`",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "setCover",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            },
+            "description": "Determines whether to use the new attachment as a cover for the Card."
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/Attachment"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards/{id}/attachments/{idAttachment}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        },
+        {
+          "name": "idAttachment",
+          "in": "path",
+          "description": "The ID of the Attachment",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get an Attachment on a Card",
+        "description": "Get a specific Attachment on a Card.",
+        "operationId": "get-cards-id-attachments-idattachment",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "The Attachment fields to be included in the response.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AttachmentFields"
+                  }
+                ]
+              },
+              "default": [
+                "all"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/Attachment"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Delete an Attachment on a Card",
+        "description": "Delete an Attachment",
+        "operationId": "deleted-cards-id-attachments-idattachment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idAttachment",
+            "in": "path",
+            "description": "The ID of the attachment to delete",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/board": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get the Board the Card is on",
+        "description": "Get the board a card is on",
+        "operationId": "get-cards-id-board",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of board [fields](/cloud/trello/guides/rest-api/object-definitions/#board-object)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/checkItemStates": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get checkItems on a Card",
+        "description": "Get the completed checklist items on a card",
+        "operationId": "get-cards-id-checkitemstates",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of: `idCheckItem`, `state`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/checklists": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get Checklists on a Card",
+        "description": "Get the checklists on a card",
+        "operationId": "get-cards-id-checklists",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "checkItems",
+            "in": "query",
+            "description": "`all` or `none`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "none"
+              ],
+              "default": "all"
+            }
+          },
+          {
+            "name": "checkItem_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of: `name,nameData,pos,state,type,due,dueReminder,idMember`",
+            "required": false,
+            "explode": false,
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "default": "name,nameData,pos,state,due,dueReminder,idMember",
+              "enum": [
+                "name",
+                "nameData",
+                "pos",
+                "state",
+                "type",
+                "due",
+                "dueReminder",
+                "idMember"
+              ]
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "`all` or `none`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "all",
+                "none"
+              ]
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "explode": false,
+            "style": "form",
+            "description": "`all` or a comma-separated list of: `idBoard,idCard,name,pos`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "all",
+                "name",
+                "nameData",
+                "pos",
+                "state",
+                "type"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Create Checklist on a Card",
+        "description": "Create a new checklist on a card",
+        "operationId": "post-cards-id-checklists",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the checklist",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idChecklistSource",
+            "in": "query",
+            "description": "The ID of a source checklist to copy into the new one",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "The position of the checklist on the card. One of: `top`, `bottom`, or a positive number.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/checkItem/{idCheckItem}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        },
+        {
+          "name": "idCheckItem",
+          "in": "path",
+          "description": "The ID of the checkitem",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get checkItem on a Card",
+        "description": "Get a specific checkItem on a card",
+        "operationId": "get-cards-id-checkitem-idcheckitem",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of `name,nameData,pos,state,type,due,dueReminder,idMember`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "name,nameData,pos,state,due,dueReminder,idMember"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Update a checkItem on a Card",
+        "description": "Update an item in a checklist on a card.",
+        "operationId": "put-cards-id-checkitem-idcheckitem",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The new name for the checklist item",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "description": "One of: `complete`, `incomplete`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "incomplete"
+              ]
+            }
+          },
+          {
+            "name": "idChecklist",
+            "in": "query",
+            "description": "The ID of the checklist this item is in",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "`top`, `bottom`, or a positive float",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/posStringOrNumber"
+            }
+          },
+          {
+            "name": "due",
+            "in": "query",
+            "description": "A due date for the checkitem",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dueReminder",
+            "in": "query",
+            "description": "A dueReminder for the due date on the checkitem",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "nullable": true
+            }
+          },
+          {
+            "name": "idMember",
+            "in": "query",
+            "description": "The ID of the member to remove from the card",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Delete checkItem on a Card",
+        "description": "Delete a checklist item",
+        "operationId": "delete-cards-id-checkitem-idcheckitem",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/list": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get the List of a Card",
+        "description": "Get the list a card is in",
+        "operationId": "get-cards-id-list",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of list [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/members": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get the Members of a Card",
+        "description": "Get the members on a card",
+        "operationId": "get-cards-id-members",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of member [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "avatarHash,fullName,initials,username"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/membersVoted": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get Members who have voted on a Card",
+        "description": "Get the members who have voted on a card",
+        "operationId": "get-cards-id-membersvoted",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of member [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "avatarHash,fullName,initials,username"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Add Member vote to Card",
+        "description": "Vote on the card for a given member.",
+        "operationId": "cardsidmembersvoted-1",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The ID of the member to vote 'yes' on the card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/pluginData": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get pluginData on a Card",
+        "description": "Get any shared pluginData on a card.",
+        "operationId": "get-cards-id-plugindata",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/stickers": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get Stickers on a Card",
+        "description": "Get the stickers on a card",
+        "operationId": "get-cards-id-stickers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of sticker [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Add a Sticker to a Card",
+        "description": "Add a sticker to a card",
+        "operationId": "post-cards-id-stickers",
+        "parameters": [
+          {
+            "name": "image",
+            "in": "query",
+            "description": "For custom stickers, the id of the sticker. For default stickers, the string identifier (like 'taco-cool', see below)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "description": "The top position of the sticker, from -60 to 100",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "minimum": -60,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "left",
+            "in": "query",
+            "description": "The left position of the sticker, from -60 to 100",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "minimum": -60,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "zIndex",
+            "in": "query",
+            "description": "The z-index of the sticker",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "rotate",
+            "in": "query",
+            "description": "The rotation of the sticker",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "default": 0,
+              "minimum": 0,
+              "maximum": 360
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/stickers/{idSticker}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        },
+        {
+          "name": "idSticker",
+          "in": "path",
+          "description": "The ID of the sticker",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get a Sticker on a Card",
+        "description": "Get a specific sticker on a card",
+        "operationId": "get-cards-id-stickers-idsticker",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of sticker [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Delete a Sticker on a Card",
+        "description": "Remove a sticker from the card",
+        "operationId": "delete-cards-id-stickers-idsticker",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Update a Sticker on a Card",
+        "description": "Update a sticker on a card",
+        "operationId": "put-cards-id-stickers-idsticker",
+        "parameters": [
+          {
+            "name": "top",
+            "in": "query",
+            "description": "The top position of the sticker, from -60 to 100",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "minimum": -60,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "left",
+            "in": "query",
+            "description": "The left position of the sticker, from -60 to 100",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "minimum": -60,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "zIndex",
+            "in": "query",
+            "description": "The z-index of the sticker",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "rotate",
+            "in": "query",
+            "description": "The rotation of the sticker",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "format": "float",
+              "default": 0,
+              "minimum": 0,
+              "maximum": 360
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/actions/{idAction}/comments": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Card",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        },
+        {
+          "name": "idAction",
+          "in": "path",
+          "description": "The ID of the comment action to update",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "put": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Update Comment Action on a Card",
+        "description": "Update an existing comment",
+        "operationId": "put-cards-id-actions-idaction-comments",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "query",
+            "description": "The new text for the comment",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Delete a comment on a Card",
+        "description": "Delete a comment",
+        "operationId": "delete-cards-id-actions-id-comments",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{idCard}/customField/{idCustomField}/item": {
+      "put": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Update Custom Field item on Card",
+        "description": "Setting, updating, and removing the value for a Custom Field on a card. For more details on updating custom fields check out the [Getting Started With Custom Fields](/cloud/trello/guides/rest-api/getting-started-with-custom-fields/)",
+        "operationId": "put-cards-idcard-customfield-idcustomfield-item",
+        "parameters": [
+          {
+            "name": "idCard",
+            "in": "path",
+            "description": "ID of the card that the Custom Field value should be set/updated for",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idCustomField",
+            "in": "path",
+            "description": "ID of the Custom Field on the card.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "value": {
+                        "type": "object",
+                        "description": "An object containing the key and value to set for the card's Custom Field value. The key used to set the value should match the type of Custom Field defined.",
+                        "properties": {
+                          "text": {
+                            "type": "string"
+                          },
+                          "checked": {
+                            "type": "boolean"
+                          },
+                          "date": {
+                            "type": "string",
+                            "format": "date-time",
+                            "example": "2018-03-13T16:00:00.000Z"
+                          },
+                          "number": {
+                            "type": "string",
+                            "example": "2154"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "idValue": {
+                        "$ref": "#/components/schemas/TrelloID",
+                        "description": "The ID of the option for the list type Custom Field"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{idCard}/customFields": {
+      "put": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Update Multiple Custom Field items on Card",
+        "description": "Setting, updating, and removing the values for multiple Custom Fields on a card. For more details on updating custom fields check out the [Getting Started With Custom Fields](/cloud/trello/guides/rest-api/getting-started-with-custom-fields/)",
+        "operationId": "put-cards-idcard-customfields",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customFieldItems": {
+                    "type": "array",
+                    "description": "An array of objects containing the custom field ID, key and value, and ID of list type option.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "idCustomField": {
+                          "pattern": "^[0-9a-fA-F]{32}$",
+                          "example": "5abbe4b7ddc1b351ef961414",
+                          "description": "The ID of the Custom Field"
+                        },
+                        "value": {
+                          "type": "object",
+                          "description": "An object containing the key and value to set for the card's Custom Field value. The key used to set the value should match the type of Custom Field defined. This is optional if Custom Field is list type.",
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "checked": {
+                              "type": "boolean"
+                            },
+                            "date": {
+                              "type": "string",
+                              "format": "date-time",
+                              "example": "2018-03-13T16:00:00.000Z"
+                            },
+                            "number": {
+                              "type": "string",
+                              "example": "2154"
+                            }
+                          }
+                        },
+                        "idValue": {
+                          "pattern": "^[0-9a-fA-F]{32}$",
+                          "example": "5abbe4b7ddc1b351ef961414",
+                          "description": "The ID of the option for the list type Custom Field. This is optional if Custom Field is not list type."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/customFieldItems": {
+      "get": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Get Custom Field Items for a Card",
+        "description": "Get the custom field items for a card.",
+        "operationId": "get-cards-id-customfielditems",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomFieldItems"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards/{id}/actions/comments": {
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Add a new comment to a Card",
+        "description": "Add a new comment to a card",
+        "operationId": "post-cards-id-actions-comments",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "text",
+            "in": "query",
+            "description": "The comment",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Action"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards/{id}/idLabels": {
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Add a Label to a Card",
+        "description": "Add a label to a card",
+        "operationId": "post-cards-id-idlabels",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The ID of the label to add",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/idMembers": {
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Add a Member to a Card",
+        "description": "Add a member to a card",
+        "operationId": "post-cards-id-idmembers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The ID of the Member to add to the card",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/labels": {
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Create a new Label on a Card",
+        "description": "Create a new label for the board and add it to the given card.",
+        "operationId": "post-cards-id-labels",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "color",
+            "in": "query",
+            "description": "A valid label color or `null`. See [labels](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "A name for the label",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/markAssociatedNotificationsRead": {
+      "post": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Mark a Card's Notifications as read",
+        "description": "Mark notifications about this card as read",
+        "operationId": "post-cards-id-markassociatednotificationsread",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/idLabels/{idLabel}": {
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Remove a Label from a Card",
+        "description": "Remove a label from a card",
+        "operationId": "delete-cards-id-idlabels-idlabel",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idLabel",
+            "in": "path",
+            "description": "The ID of the label to remove",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/idMembers/{idMember}": {
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Remove a Member from a Card",
+        "description": "Remove a member from a card",
+        "operationId": "delete-id-idmembers-idmember",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idMember",
+            "in": "path",
+            "description": "The ID of the member to remove from the card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{id}/membersVoted/{idMember}": {
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Remove a Member's Vote on a Card",
+        "description": "Remove a member's vote from a card",
+        "operationId": "delete-cards-id-membersvoted-idmember",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idMember",
+            "in": "path",
+            "description": "The ID of the member whose vote to remove",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/cards/{idCard}/checklist/{idChecklist}/checkItem/{idCheckItem}": {
+      "put": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Update Checkitem on Checklist on Card",
+        "description": "Update an item in a checklist on a card.",
+        "operationId": "put-cards-idcard-checklist-idchecklist-checkitem-idcheckitem",
+        "parameters": [
+          {
+            "name": "idCard",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idCheckItem",
+            "in": "path",
+            "description": "The ID of the checklist item to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "`top`, `bottom`, or a positive float",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/posStringOrNumber"
+            }
+          },
+          {
+            "name": "idChecklist",
+            "in": "path",
+            "description": "The ID of the item to update.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckItem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cards/{id}/checklists/{idChecklist}": {
+      "delete": {
+        "tags": [
+          "Cartões"
+        ],
+        "summary": "Delete a Checklist on a Card",
+        "description": "Delete a checklist from a card",
+        "operationId": "delete-cards-id-checklists-idchecklist",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Card",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idChecklist",
+            "in": "path",
+            "description": "The ID of the checklist to delete",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "APIKey": [],
+      "APIToken": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "APIKey": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "key"
+      },
+      "APIToken": {
+        "in": "query",
+        "name": "token",
+        "type": "apiKey"
+      }
+    },
+    "schemas": {
+      "Action": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "idMemberCreator": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "example": "Can never go wrong with bowie"
+              },
+              "card": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/TrelloID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Bowie"
+                  },
+                  "idShort": {
+                    "type": "integer",
+                    "example": 7
+                  },
+                  "shortLink": {
+                    "type": "string",
+                    "example": "3CsPkqOF"
+                  }
+                }
+              },
+              "board": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/TrelloID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Mullets"
+                  },
+                  "shortLink": {
+                    "type": "string",
+                    "example": "3CsPkqOF"
+                  }
+                }
+              },
+              "list": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/TrelloID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Amazing"
+                  }
+                }
+              }
+            }
+          },
+          "type": {
+            "type": "string",
+            "example": "commentCard"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:41:51.396Z"
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "reactions": {
+                "type": "object",
+                "properties": {
+                  "perAction": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "ok"
+                      },
+                      "disableAt": {
+                        "type": "number",
+                        "example": 1000
+                      },
+                      "warnAt": {
+                        "type": "number",
+                        "example": 900
+                      }
+                    }
+                  },
+                  "uniquePerAction": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "ok"
+                      },
+                      "disableAt": {
+                        "type": "number",
+                        "example": 1000
+                      },
+                      "warnAt": {
+                        "type": "number",
+                        "example": 900
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "display": {
+            "type": "object",
+            "properties": {
+              "translationKey": {
+                "type": "string",
+                "example": "action_comment_on_card"
+              },
+              "entities": {
+                "type": "object",
+                "properties": {
+                  "contextOn": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "translatable"
+                      },
+                      "translationKey": {
+                        "type": "string",
+                        "example": "action_on"
+                      },
+                      "hideIfContext": {
+                        "type": "boolean"
+                      },
+                      "idContext": {
+                        "type": "string",
+                        "$ref": "#/components/schemas/TrelloID"
+                      }
+                    }
+                  },
+                  "card": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "card"
+                      },
+                      "hideIfContext": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "string",
+                        "$ref": "#/components/schemas/TrelloID"
+                      },
+                      "shortLink": {
+                        "type": "string",
+                        "example": "3CsPkqOF"
+                      },
+                      "text": {
+                        "type": "string",
+                        "example": "Bowie"
+                      }
+                    }
+                  },
+                  "comment": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "comment"
+                      },
+                      "text": {
+                        "type": "string",
+                        "example": "Can never go wrong with bowie"
+                      }
+                    }
+                  },
+                  "memberCreator": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "member"
+                      },
+                      "id": {
+                        "$ref": "#/components/schemas/TrelloID"
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "bobloblaw"
+                      },
+                      "text": {
+                        "type": "string",
+                        "example": "Bob Loblaw (World)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "memberCreator": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "$ref": "#/components/schemas/TrelloID",
+                "example": "5b02e7f4e1facdc393169f9d"
+              },
+              "activityBlocked": {
+                "type": "boolean",
+                "example": false
+              },
+              "avatarHash": {
+                "type": "string",
+                "example": "db2adf80c2e6c26b76e1f10400eb4c45"
+              },
+              "avatarUrl": {
+                "type": "string",
+                "format": "url",
+                "example": "https://trello-members.s3.amazonaws.com/5b02e7f4e1facdc393169f9d/db2adf80c2e6c26b76e1f10400eb4c45"
+              },
+              "fullName": {
+                "type": "string",
+                "example": "Bob Loblaw (Trello)"
+              },
+              "idMemberReferrer": {
+                "type": "string",
+                "$ref": "#/components/schemas/TrelloID",
+                "nullable": true,
+                "example": null
+              },
+              "initials": {
+                "type": "string",
+                "example": "BL"
+              },
+              "username": {
+                "type": "string",
+                "example": "bobloblaw"
+              }
+            }
+          }
+        }
+      },
+      "Attachment": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5bc79d4206526d2279c1e6ea"
+          },
+          "bytes": {
+            "type": "string",
+            "example": null,
+            "nullable": true
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "example": "2018-10-17T19:10:14.808Z"
+          },
+          "edgeColor": {
+            "type": "string",
+            "$ref": "#/components/schemas/Color",
+            "example": null,
+            "nullable": true
+          },
+          "idMember": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5bc79d4206526d2279c1e6eb"
+          },
+          "isUpload": {
+            "type": "boolean",
+            "example": false
+          },
+          "mimeType": {
+            "type": "string",
+            "example": ""
+          },
+          "name": {
+            "type": "string",
+            "example": "Deprecation Extension Notice"
+          },
+          "previews": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": []
+          },
+          "url": {
+            "type": "string",
+            "format": "url",
+            "example": "https://admin.typeform.com/form/RzExEM/share#/link"
+          },
+          "pos": {
+            "type": "number",
+            "format": "float",
+            "example": 1638
+          }
+        }
+      },
+      "AttachmentFields": {
+        "type": "string",
+        "enum": [
+          "id",
+          "bytes",
+          "date",
+          "edgeColor",
+          "idMember",
+          "isUpload",
+          "mimeType",
+          "name",
+          "previews",
+          "url",
+          "pos"
+        ]
+      },
+      "Card": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "badges": {
+            "type": "object",
+            "properties": {
+              "attachmentsByType": {
+                "type": "object",
+                "properties": {
+                  "trello": {
+                    "type": "object",
+                    "properties": {
+                      "board": {
+                        "type": "number"
+                      },
+                      "card": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "location": {
+                "type": "boolean"
+              },
+              "votes": {
+                "type": "integer"
+              },
+              "viewingMemberVoted": {
+                "type": "boolean",
+                "example": false
+              },
+              "subscribed": {
+                "type": "boolean",
+                "example": false
+              },
+              "fogbugz": {
+                "type": "string"
+              },
+              "checkItems": {
+                "type": "integer",
+                "example": 0
+              },
+              "checkItemsChecked": {
+                "type": "integer",
+                "example": 0
+              },
+              "comments": {
+                "type": "integer",
+                "example": 0
+              },
+              "attachments": {
+                "type": "integer",
+                "example": 0
+              },
+              "description": {
+                "type": "boolean"
+              },
+              "due": {
+                "type": "string",
+                "format": "date",
+                "nullable": true
+              },
+              "start": {
+                "type": "string",
+                "format": "date",
+                "nullable": true
+              },
+              "dueComplete": {
+                "type": "boolean"
+              }
+            }
+          },
+          "cardRole": {
+            "type": "string",
+            "enum": [
+              "separator",
+              "board",
+              "mirror",
+              "link"
+            ],
+            "example": "mirror",
+            "nullable": true
+          },
+          "checkItemStates": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "closed": {
+            "type": "boolean"
+          },
+          "coordinates": {
+            "type": "string",
+            "nullable": true
+          },
+          "creationMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateLastActivity": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-09-16T16:19:17.156Z"
+          },
+          "desc": {
+            "type": "string",
+            "example": "👋Hey there,\n\nTrello's Platform team uses this board to keep developers up-to-date."
+          },
+          "descData": {
+            "type": "object",
+            "properties": {
+              "emoji": {
+                "type": "object"
+              }
+            }
+          },
+          "due": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "dueReminder": {
+            "type": "string",
+            "nullable": true
+          },
+          "idBoard": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961414"
+          },
+          "idChecklists": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Checklist"
+                },
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idLabels": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Label"
+                },
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idList": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961415"
+          },
+          "idMembers": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idMembersVoted": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idShort": {
+            "type": "integer"
+          },
+          "idAttachmentCover": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961415",
+            "nullable": true
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "limits": {
+            "type": "object",
+            "$ref": "#/components/schemas/Limits"
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "manualCoverAttachment": {
+            "type": "boolean",
+            "example": false
+          },
+          "mirrorSourceId": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "example": "👋 What? Why? How?"
+          },
+          "pos": {
+            "type": "number",
+            "format": "float",
+            "example": 65535
+          },
+          "shortLink": {
+            "type": "string",
+            "example": "H0TZyzbK"
+          },
+          "shortUrl": {
+            "type": "string",
+            "format": "url",
+            "example": "https://trello.com/c/H0TZyzbK"
+          },
+          "subscribed": {
+            "type": "boolean",
+            "example": false
+          },
+          "url": {
+            "type": "string",
+            "format": "url",
+            "example": "https://trello.com/c/H0TZyzbK/4-%F0%9F%91%8B-what-why-how"
+          },
+          "cover": {
+            "type": "object",
+            "properties": {
+              "idAttachment": {
+                "type": "string",
+                "$ref": "#/components/schemas/TrelloID",
+                "nullable": true
+              },
+              "color": {
+                "$ref": "#/components/schemas/Color",
+                "nullable": true
+              },
+              "idUploadedBackground": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "size": {
+                "type": "string",
+                "enum": [
+                  "normal"
+                ]
+              },
+              "brightness": {
+                "type": "string",
+                "enum": [
+                  "light",
+                  "dark"
+                ]
+              },
+              "isTemplate": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          }
+        }
+      },
+      "CardFields": {
+        "type": "string",
+        "enum": [
+          "id",
+          "address",
+          "badges",
+          "checkItemStates",
+          "closed",
+          "coordinates",
+          "creationMethod",
+          "dueComplete",
+          "dateLastActivity",
+          "desc",
+          "descData",
+          "due",
+          "dueReminder",
+          "idBoard",
+          "idChecklists",
+          "idLabels",
+          "idList",
+          "idMembers",
+          "idMembersVoted",
+          "idShort",
+          "idAttachmentCover",
+          "labels",
+          "limits",
+          "locationName",
+          "manualCoverAttachment",
+          "name",
+          "pos",
+          "shortLink",
+          "shortUrl",
+          "subscribed",
+          "url",
+          "cover",
+          "isTemplate"
+        ],
+        "description": "The fields on a Card."
+      },
+      "CheckItem": {
+        "type": "object",
+        "properties": {
+          "idChecklist": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5dc9b507756e182c76007621"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "incomplete"
+            ],
+            "example": "incomplete"
+          },
+          "id": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5dc9b509f02f4314edc4303a"
+          },
+          "name": {
+            "type": "string"
+          },
+          "nameData": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "pos": {
+            "type": "string",
+            "example": 1673
+          }
+        }
+      },
+      "Checklist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      },
+      "Color": {
+        "type": "string",
+        "enum": [
+          "yellow",
+          "purple",
+          "blue",
+          "red",
+          "green",
+          "orange",
+          "black",
+          "sky",
+          "pink",
+          "lime"
+        ],
+        "nullable": true
+      },
+      "CustomFieldItems": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "value": {
+            "type": "object",
+            "properties": {
+              "checked": {
+                "type": "string",
+                "example": "true"
+              }
+            }
+          },
+          "idCustomField": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5b080fd8017bd1653b5480fa"
+          },
+          "idModel": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5b080ff194611b41aaaa9570"
+          },
+          "modelType": {
+            "type": "string",
+            "enum": [
+              "card",
+              "board",
+              "member"
+            ],
+            "example": "card"
+          }
+        }
+      },
+      "Label": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The ID of the label.",
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "idBoard": {
+            "type": "string",
+            "description": "The ID of the board the label is on.",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961414"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name displayed for the label.",
+            "example": "Overdue",
+            "nullable": true,
+            "minLength": 0,
+            "maxLength": 16384
+          },
+          "color": {
+            "type": "string",
+            "$ref": "#/components/schemas/Color",
+            "description": "The color of the label. Null means no color and the label will not be shown on the front of Cards."
+          }
+        }
+      },
+      "Limits": {
+        "type": "object",
+        "properties": {
+          "attachments": {
+            "type": "object",
+            "properties": {
+              "perBoard": {
+                "type": "object",
+                "$ref": "#/components/schemas/LimitsObject"
+              }
+            }
+          }
+        }
+      },
+      "LimitsObject": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "warning"
+            ]
+          },
+          "disableAt": {
+            "type": "number",
+            "example": 36000
+          },
+          "warnAt": {
+            "type": "number",
+            "example": 32400
+          }
+        }
+      },
+      "TrelloID": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{24}$",
+        "example": "5abbe4b7ddc1b351ef961414"
+      },
+      "posStringOrNumber": {
+        "oneOf": [
+          {
+            "type": "string",
+            "enum": [
+              "top",
+              "bottom"
+            ]
+          },
+          {
+            "type": "number",
+            "format": "float",
+            "example": 1293.5
+          }
+        ]
+      }
+    }
+  }
+}

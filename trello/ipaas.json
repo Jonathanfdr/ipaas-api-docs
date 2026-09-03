@@ -1,0 +1,68 @@
+{
+  "app": {
+    "name": "Trello",
+    "description": "Gestão de trabalho em quadros kanban: quadros, listas, cartões, checklists e membros."
+  },
+  "environments": [
+    {
+      "name": "Produção",
+      "type": "REST",
+      "baseURL": "https://api.trello.com/1",
+      "authModels": ["API_KEY"]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Produção",
+      "environment": "Produção",
+      "authModel": "API_KEY",
+      "addTo": "query",
+      "keys": [
+        { "key": "key", "value": "<API key do Power-Up, cadastrar na interface>" },
+        { "key": "token", "value": "<token do usuário, cadastrar na interface>" }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "name": "Quadros",
+      "description": "Quadros, membros do quadro, listas e cartões do quadro",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "product",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/trello/openapi-quadros.ipaas.json"
+    },
+    {
+      "name": "Cartões",
+      "description": "Cartões, anexos, comentários, etiquetas e movimentação",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "light-bulb",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/trello/openapi-cartoes.ipaas.json"
+    },
+    {
+      "name": "Listas",
+      "description": "Listas do quadro, arquivamento e movimentação de cartões em lote",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "adb",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/trello/openapi-listas.ipaas.json"
+    },
+    {
+      "name": "Checklists",
+      "description": "Checklists e itens de checklist dos cartões",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "product",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/trello/openapi-checklists.ipaas.json"
+    },
+    {
+      "name": "Membros",
+      "description": "Membros, quadros e organizações do usuário autenticado",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "user",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/trello/openapi-membros.ipaas.json"
+    }
+  ]
+}

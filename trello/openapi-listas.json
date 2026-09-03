@@ -1,0 +1,934 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Trello REST API - Listas",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://api.trello.com/1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Listas"
+    }
+  ],
+  "paths": {
+    "/lists/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the list",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Get a List",
+        "description": "Get information about a List",
+        "operationId": "get-lists-id",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "style": "form",
+            "explode": false,
+            "description": "`all` or a comma separated list of List field names.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "name,closed,idBoard,pos"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Update a List",
+        "description": "Update the properties of a List",
+        "operationId": "put-lists-id",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "New name for the list",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "closed",
+            "in": "query",
+            "description": "Whether the list should be closed (archived)",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "idBoard",
+            "in": "query",
+            "description": "ID of a board the list should be moved to",
+            "required": false,
+            "explode": false,
+            "style": "form",
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "New position for the list: `top`, `bottom`, or a positive floating point number",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "number",
+                  "format": "float"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "name": "subscribed",
+            "in": "query",
+            "description": "Whether the active member is subscribed to this list",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists": {
+      "post": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Create a new List",
+        "description": "Create a new List on a Board",
+        "operationId": "post-lists",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name for the list",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "idBoard",
+            "in": "query",
+            "description": "The long ID of the board the list should be created on",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idListSource",
+            "in": "query",
+            "description": "ID of the List to copy into the new List",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "Position of the list. `top`, `bottom`, or a positive floating point number",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "number",
+                  "format": "float"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ]
+                }
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/archiveAllCards": {
+      "post": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Archive all Cards in List",
+        "description": "Archive all cards in a list",
+        "operationId": "post-lists-id-archiveallcards",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/moveAllCards": {
+      "post": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Move all Cards in List",
+        "description": "Move all Cards in a List",
+        "operationId": "post-lists-id-moveallcards",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idBoard",
+            "in": "query",
+            "description": "The ID of the board the cards should be moved to",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idList",
+            "in": "query",
+            "description": "The ID of the list that the cards should be moved to",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/closed": {
+      "put": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Archive or unarchive a list",
+        "description": "Archive or unarchive a list",
+        "operationId": "put-lists-id-closed",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "Set to true to close (archive) the list",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/idBoard": {
+      "put": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Move List to Board",
+        "description": "Move a List to a different Board",
+        "operationId": "put-id-idboard",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The ID of the board to move the list to",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/{field}": {
+      "put": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Update a field on a List",
+        "description": "Rename a list",
+        "operationId": "put-lists-id-field",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "description": "The field on the List to be updated",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "name",
+                "pos",
+                "subscribed"
+              ]
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The new value for the field",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "description": "The new name for the List"
+                },
+                {
+                  "type": "number",
+                  "format": "float",
+                  "description": "The new position for the List"
+                },
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ],
+                  "description": "The new position for the List"
+                },
+                {
+                  "type": "boolean"
+                }
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/actions": {
+      "get": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Get Actions for a List",
+        "description": "Get the Actions on a List",
+        "operationId": "get-lists-id-actions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "A comma-separated list of [action types](https://developer.atlassian.com/cloud/trello/guides/rest-api/action-types/).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/board": {
+      "get": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Get the Board a List is on",
+        "description": "Get the board a list is on",
+        "operationId": "get-lists-id-board",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of board [fields](/cloud/trello/guides/rest-api/object-definitions/#board-object)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/lists/{id}/cards": {
+      "get": {
+        "tags": [
+          "Listas"
+        ],
+        "summary": "Get Cards in a List",
+        "description": "List the cards in a list",
+        "operationId": "get-lists-id-cards",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the list",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Card"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "APIKey": [],
+      "APIToken": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "APIKey": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "key"
+      },
+      "APIToken": {
+        "in": "query",
+        "name": "token",
+        "type": "apiKey"
+      }
+    },
+    "schemas": {
+      "Card": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "address": {
+            "type": "string",
+            "nullable": true
+          },
+          "badges": {
+            "type": "object",
+            "properties": {
+              "attachmentsByType": {
+                "type": "object",
+                "properties": {
+                  "trello": {
+                    "type": "object",
+                    "properties": {
+                      "board": {
+                        "type": "number"
+                      },
+                      "card": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              },
+              "location": {
+                "type": "boolean"
+              },
+              "votes": {
+                "type": "integer"
+              },
+              "viewingMemberVoted": {
+                "type": "boolean",
+                "example": false
+              },
+              "subscribed": {
+                "type": "boolean",
+                "example": false
+              },
+              "fogbugz": {
+                "type": "string"
+              },
+              "checkItems": {
+                "type": "integer",
+                "example": 0
+              },
+              "checkItemsChecked": {
+                "type": "integer",
+                "example": 0
+              },
+              "comments": {
+                "type": "integer",
+                "example": 0
+              },
+              "attachments": {
+                "type": "integer",
+                "example": 0
+              },
+              "description": {
+                "type": "boolean"
+              },
+              "due": {
+                "type": "string",
+                "format": "date",
+                "nullable": true
+              },
+              "start": {
+                "type": "string",
+                "format": "date",
+                "nullable": true
+              },
+              "dueComplete": {
+                "type": "boolean"
+              }
+            }
+          },
+          "cardRole": {
+            "type": "string",
+            "enum": [
+              "separator",
+              "board",
+              "mirror",
+              "link"
+            ],
+            "example": "mirror",
+            "nullable": true
+          },
+          "checkItemStates": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "closed": {
+            "type": "boolean"
+          },
+          "coordinates": {
+            "type": "string",
+            "nullable": true
+          },
+          "creationMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "dateLastActivity": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-09-16T16:19:17.156Z"
+          },
+          "desc": {
+            "type": "string",
+            "example": "👋Hey there,\n\nTrello's Platform team uses this board to keep developers up-to-date."
+          },
+          "descData": {
+            "type": "object",
+            "properties": {
+              "emoji": {
+                "type": "object"
+              }
+            }
+          },
+          "due": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "dueReminder": {
+            "type": "string",
+            "nullable": true
+          },
+          "idBoard": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961414"
+          },
+          "idChecklists": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Checklist"
+                },
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idLabels": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/Label"
+                },
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idList": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961415"
+          },
+          "idMembers": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idMembersVoted": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "idShort": {
+            "type": "integer"
+          },
+          "idAttachmentCover": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961415",
+            "nullable": true
+          },
+          "labels": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TrelloID"
+                }
+              ]
+            }
+          },
+          "limits": {
+            "type": "object",
+            "$ref": "#/components/schemas/Limits"
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "manualCoverAttachment": {
+            "type": "boolean",
+            "example": false
+          },
+          "mirrorSourceId": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "example": "👋 What? Why? How?"
+          },
+          "pos": {
+            "type": "number",
+            "format": "float",
+            "example": 65535
+          },
+          "shortLink": {
+            "type": "string",
+            "example": "H0TZyzbK"
+          },
+          "shortUrl": {
+            "type": "string",
+            "format": "url",
+            "example": "https://trello.com/c/H0TZyzbK"
+          },
+          "subscribed": {
+            "type": "boolean",
+            "example": false
+          },
+          "url": {
+            "type": "string",
+            "format": "url",
+            "example": "https://trello.com/c/H0TZyzbK/4-%F0%9F%91%8B-what-why-how"
+          },
+          "cover": {
+            "type": "object",
+            "properties": {
+              "idAttachment": {
+                "type": "string",
+                "$ref": "#/components/schemas/TrelloID",
+                "nullable": true
+              },
+              "color": {
+                "$ref": "#/components/schemas/Color",
+                "nullable": true
+              },
+              "idUploadedBackground": {
+                "type": "boolean",
+                "nullable": true
+              },
+              "size": {
+                "type": "string",
+                "enum": [
+                  "normal"
+                ]
+              },
+              "brightness": {
+                "type": "string",
+                "enum": [
+                  "light",
+                  "dark"
+                ]
+              },
+              "isTemplate": {
+                "type": "boolean",
+                "example": false
+              }
+            }
+          }
+        }
+      },
+      "Checklist": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      },
+      "Color": {
+        "type": "string",
+        "enum": [
+          "yellow",
+          "purple",
+          "blue",
+          "red",
+          "green",
+          "orange",
+          "black",
+          "sky",
+          "pink",
+          "lime"
+        ],
+        "nullable": true
+      },
+      "Label": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The ID of the label.",
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "idBoard": {
+            "type": "string",
+            "description": "The ID of the board the label is on.",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961414"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name displayed for the label.",
+            "example": "Overdue",
+            "nullable": true,
+            "minLength": 0,
+            "maxLength": 16384
+          },
+          "color": {
+            "type": "string",
+            "$ref": "#/components/schemas/Color",
+            "description": "The color of the label. Null means no color and the label will not be shown on the front of Cards."
+          }
+        }
+      },
+      "Limits": {
+        "type": "object",
+        "properties": {
+          "attachments": {
+            "type": "object",
+            "properties": {
+              "perBoard": {
+                "type": "object",
+                "$ref": "#/components/schemas/LimitsObject"
+              }
+            }
+          }
+        }
+      },
+      "LimitsObject": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "warning"
+            ]
+          },
+          "disableAt": {
+            "type": "number",
+            "example": 36000
+          },
+          "warnAt": {
+            "type": "number",
+            "example": 32400
+          }
+        }
+      },
+      "TrelloID": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{24}$",
+        "example": "5abbe4b7ddc1b351ef961414"
+      }
+    }
+  }
+}

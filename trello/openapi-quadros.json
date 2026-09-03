@@ -1,0 +1,3115 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Trello REST API - Quadros",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://api.trello.com/1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Quadros"
+    }
+  ],
+  "paths": {
+    "/boards/{id}/memberships": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Memberships of a Board",
+        "description": "Get information about the memberships users have to the board.",
+        "operationId": "get-boards-id-memberships",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the board",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "One of `admins`, `all`, `none`, `normal`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "admins",
+                "all",
+                "none",
+                "normal"
+              ]
+            }
+          },
+          {
+            "name": "activity",
+            "in": "query",
+            "description": "Works for premium organizations only.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "orgMemberType",
+            "in": "query",
+            "description": "Shows the type of member to the org the user is. For instance, an org admin will have a `orgMemberType` of `admin`.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "member",
+            "in": "query",
+            "description": "Determines whether to include a [nested member object](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "member_fields",
+            "in": "query",
+            "description": "Fields to show if `member=true`. Valid values: [nested member resource fields](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "$ref": "#/components/schemas/MemberFields",
+              "default": "fullname,username"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Memberships"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/boards/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get a Board",
+        "description": "Request a single board.",
+        "operationId": "get-boards-id",
+        "parameters": [
+          {
+            "name": "actions",
+            "in": "query",
+            "description": "This is a nested resource. Read more about actions as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          },
+          {
+            "name": "boardStars",
+            "in": "query",
+            "description": "Valid values are one of: `mine` or `none`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none"
+            }
+          },
+          {
+            "name": "cards",
+            "in": "query",
+            "description": "This is a nested resource. Read more about cards as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none"
+            }
+          },
+          {
+            "name": "card_pluginData",
+            "in": "query",
+            "description": "Use with the `cards` param to include card pluginData with the response",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "checklists",
+            "in": "query",
+            "description": "This is a nested resource. Read more about checklists as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none"
+            }
+          },
+          {
+            "name": "customFields",
+            "in": "query",
+            "description": "This is a nested resource. Read more about custom fields as nested resources [here](#custom-fields-nested-resource).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "The fields of the board to be included in the response. Valid values: all or a comma-separated list of: closed, dateLastActivity, dateLastView, desc, descData, idMemberCreator, idOrganization, invitations, invited, labelNames, memberships, name, pinned, powerUps, prefs, shortLink, shortUrl, starred, subscribed, url",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "name,desc,descData,closed,idOrganization,pinned,url,shortUrl,prefs,labelNames"
+            }
+          },
+          {
+            "name": "labels",
+            "in": "query",
+            "description": "This is a nested resource. Read more about labels as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lists",
+            "in": "query",
+            "description": "This is a nested resource. Read more about lists as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "open"
+            }
+          },
+          {
+            "name": "members",
+            "in": "query",
+            "description": "This is a nested resource. Read more about members as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none"
+            }
+          },
+          {
+            "name": "memberships",
+            "in": "query",
+            "description": "This is a nested resource. Read more about memberships as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none"
+            }
+          },
+          {
+            "name": "pluginData",
+            "in": "query",
+            "description": "Determines whether the pluginData for this board should be returned. Valid values: true or false.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "organization",
+            "in": "query",
+            "description": "This is a nested resource. Read more about organizations as nested resources [here](/cloud/trello/guides/rest-api/nested-resources/).",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "organization_pluginData",
+            "in": "query",
+            "description": "Use with the `organization` param to include organization pluginData with the response",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "myPrefs",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Also known as collections, tags, refer to the collection(s) that a Board belongs to.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Board"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "default": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update a Board",
+        "description": "Update an existing board by id",
+        "operationId": "put-boards-id",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The new name for the board. 1 to 16384 characters long.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "desc",
+            "in": "query",
+            "description": "A new description for the board, 0 to 16384 characters long",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "closed",
+            "in": "query",
+            "description": "Whether the board is closed",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "subscribed",
+            "in": "query",
+            "description": "Whether the acting user is subscribed to the board",
+            "required": false,
+            "explode": false,
+            "style": "form",
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idOrganization",
+            "in": "query",
+            "description": "The id of the Workspace the board should be moved to",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefs/permissionLevel",
+            "in": "query",
+            "description": "One of: org, private, public",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefs/selfJoin",
+            "in": "query",
+            "description": "Whether Workspace members can join the board themselves",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "prefs/cardCovers",
+            "in": "query",
+            "description": "Whether card covers should be displayed on this board",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "prefs/hideVotes",
+            "in": "query",
+            "description": "Determines whether the Voting Power-Up should hide who voted on cards or not.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "prefs/invitations",
+            "in": "query",
+            "description": "Who can invite people to this board. One of: admins, members",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefs/voting",
+            "in": "query",
+            "description": "Who can vote on this board. One of disabled, members, observers, org, public",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefs/comments",
+            "in": "query",
+            "description": "Who can comment on cards on this board. One of: disabled, members, observers, org, public",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefs/background",
+            "in": "query",
+            "description": "The id of a custom background or one of: blue, orange, green, red, purple, pink, lime, sky, grey",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefs/cardAging",
+            "in": "query",
+            "description": "One of: pirate, regular",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prefs/calendarFeedEnabled",
+            "in": "query",
+            "description": "Determines whether the calendar feed is enabled or not.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Delete a Board",
+        "description": "Delete a board.",
+        "operationId": "delete-boards-id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/{field}": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get a field on a Board",
+        "description": "Get a single, specific field on a board",
+        "operationId": "get-boards-id-field",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the board.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "field",
+            "in": "path",
+            "description": "The field you'd like to receive. Valid values: closed, dateLastActivity, dateLastView, desc, descData, idMemberCreator, idOrganization, invitations, invited, labelNames, memberships, name, pinned, powerUps, prefs, shortLink, shortUrl, starred, subscribed, url.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{boardId}/actions": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Actions of a Board",
+        "description": "Get all of the actions of a Board. See [Nested Resources](/cloud/trello/guides/rest-api/nested-resources/) for more information.",
+        "operationId": "get-boards-id-actions",
+        "parameters": [
+          {
+            "name": "boardId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "The fields to be returned for the Actions. [See Action fields here](/cloud/trello/guides/rest-api/object-definitions/#action-object).",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Action"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "A comma-separated list of [action types](/cloud/trello/guides/rest-api/action-types/).",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "The format of the returned Actions. Either list or count.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "list"
+            }
+          },
+          {
+            "name": "idModels",
+            "in": "query",
+            "description": "A comma-separated list of idModels. Only actions related to these models will be returned.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The limit of the number of responses, between 0 and 1000.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 50
+            }
+          },
+          {
+            "name": "member",
+            "in": "query",
+            "description": "Whether to return the member object for each action.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "member_fields",
+            "in": "query",
+            "description": "The fields of the [member](/cloud/trello/guides/rest-api/object-definitions/#member-object) to return.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "activityBlocked,avatarHash,avatarUrl,fullName,idMemberReferrer,initials,nonPublic,nonPublicAvailable,username"
+            }
+          },
+          {
+            "name": "memberCreator",
+            "in": "query",
+            "description": "Whether to return the memberCreator object for each action.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "memberCreator_fields",
+            "in": "query",
+            "description": "The fields of the [member](/cloud/trello/guides/rest-api/object-definitions/#member-object) creator to return",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "activityBlocked,avatarHash,avatarUrl,fullName,idMemberReferrer,initials,nonPublic,nonPublicAvailable,username"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page of results for actions.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "default": 0
+            }
+          },
+          {
+            "name": "reactions",
+            "in": "query",
+            "description": "Whether to show reactions on comments or not.",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "before",
+            "in": "query",
+            "description": "A date string in the form of YYYY-MM-DDThh:mm:ssZ or a mongo object ID. Only objects created before this date will be returned.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "since",
+            "in": "query",
+            "description": "A date string in the form of YYYY-MM-DDThh:mm:ssZ or a mongo object ID. Only objects created since this date will be returned.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{boardId}/boardStars": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get boardStars on a Board",
+        "description": "",
+        "operationId": "get-boards-id-boardstars",
+        "parameters": [
+          {
+            "name": "boardId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Valid values: mine, none",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "mine"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/BoardStars"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/boards/{id}/checklists": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Checklists on a Board",
+        "description": "Get all of the checklists on a Board.",
+        "operationId": "boards-id-checklists",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the board",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/cards": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Cards on a Board",
+        "description": "Get all of the open Cards on a Board. See [Nested Resources](/cloud/trello/guides/rest-api/nested-resources/) for more information.",
+        "operationId": "get-boards-id-cards",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/cards/{filter}": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get filtered Cards on a Board",
+        "description": "Get the Cards on a Board that match a given filter. See [Nested Resources](/cloud/trello/guides/rest-api/nested-resources/) for more information.",
+        "operationId": "get-boards-id-cards-filter",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Board",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "path",
+            "description": "One of: `all`, `closed`, `complete`, `incomplete`, `none`, `open`, `visible`",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "closed",
+                "complete",
+                "incomplete",
+                "none",
+                "open",
+                "visible"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/customFields": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Custom Fields for Board",
+        "description": "Get the Custom Field Definitions that exist on a board.",
+        "operationId": "get-boards-id-customfields",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the board",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CustomField"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/boards/{id}/labels": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Labels on a Board",
+        "description": "Get all of the Labels on a Board.",
+        "operationId": "get-boards-id-labels",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the Board.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "The fields to be returned for the Labels.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Label"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of Labels to be returned.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 50,
+              "minimum": 0,
+              "maximum": 1000
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Create a Label on a Board",
+        "description": "Create a new Label on a Board.",
+        "operationId": "post-boards-id-labels",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the label to be created. 1 to 16384 characters long.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "color",
+            "in": "query",
+            "description": "Sets the color of the new label. Valid values are a label color or `null`.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/lists": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the board",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Lists on a Board",
+        "description": "Get the Lists on a Board",
+        "operationId": "get-boards-id-lists",
+        "parameters": [
+          {
+            "name": "cards",
+            "in": "query",
+            "description": "Filter to apply to Cards.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ViewFilter"
+            }
+          },
+          {
+            "name": "card_fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of card [fields](/cloud/trello/guides/rest-api/object-definitions/#card-object)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "Filter to apply to Lists",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/ViewFilter"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of list [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrelloList"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Create a List on a Board",
+        "description": "Create a new List on a Board.",
+        "operationId": "post-boards-id-lists",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the list to be created. 1 to 16384 characters long.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "Determines the position of the list. Valid values: `top`, `bottom`, or a positive number.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "top"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrelloList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/boards/{id}/lists/{filter}": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get filtered Lists on a Board",
+        "description": "",
+        "operationId": "get-boards-id-lists-filter",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the board",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "path",
+            "description": "One of `all`, `closed`, `none`, `open`",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ViewFilter"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/members": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the board",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get the Members of a Board",
+        "description": "Get the Members for a board",
+        "operationId": "get-boards-id-members",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Invite Member to Board via email",
+        "description": "Invite a Member to a Board via their email address.",
+        "operationId": "put-boards-id-members",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "The email address of a user to add as a member of the board.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Valid values: admin, normal, observer. Determines what type of member the user being added should be of the board.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "normal",
+              "enum": [
+                "admin",
+                "normal",
+                "observer"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "fullName": {
+                    "type": "string",
+                    "description": "The full name of the user to as a member of the board. Must have a length of at least 1 and cannot begin nor end with a space."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/members/{idMember}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The id of the board to update",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        },
+        {
+          "name": "idMember",
+          "in": "path",
+          "description": "The id of the member to add to the board.",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Add a Member to a Board",
+        "description": "Add a member to the board.",
+        "operationId": "put-boards-id-members-idmember",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "One of: admin, normal, observer. Determines the type of member this user will be on the board.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "normal",
+                "observer"
+              ]
+            }
+          },
+          {
+            "name": "allowBillableGuest",
+            "in": "query",
+            "description": "Optional param that allows organization admins to add multi-board guests onto a board.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Remove Member from Board",
+        "description": "",
+        "operationId": "boardsidmembersidmember",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/memberships/{idMembership}": {
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update Membership of Member on a Board",
+        "description": "Update an existing board by id",
+        "operationId": "put-boards-id-memberships-idmembership",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idMembership",
+            "in": "path",
+            "description": "The id of a membership that should be added to this board.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "One of: admin, normal, observer. Determines the type of member that this membership will be to this board.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "admin",
+                "normal",
+                "observer"
+              ]
+            }
+          },
+          {
+            "name": "member_fields",
+            "in": "query",
+            "description": "Valid values: all, avatarHash, bio, bioData, confirmed, fullName, idPremOrgsAdmin, initials, memberType, products, status, url, username",
+            "required": false,
+            "explode": false,
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "default": "fullName, username",
+              "enum": [
+                "all",
+                "avatarHash",
+                "bio",
+                "bioData",
+                "confirmed",
+                "fullName",
+                "idPremOrgsAdmin",
+                "initials",
+                "memberType",
+                "products",
+                "status",
+                "url",
+                "username"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/myPrefs/emailPosition": {
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update emailPosition Pref on a Board",
+        "description": "Update emailPosition Pref on a Board",
+        "operationId": "put-boards-id-myprefs-emailposition",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "Valid values: bottom, top. Determines the position of the email address.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bottom",
+                "top"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/myPrefs/idEmailList": {
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update idEmailList Pref on a Board",
+        "description": "Change the default list that email-to-board cards are created in.",
+        "operationId": "put-boards-id-myprefs-idemaillist",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The id of an email list.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/myPrefs/showSidebar": {
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update showSidebar Pref on a Board",
+        "operationId": "put-boards-id-myPrefs-showsidebar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "Determines whether to show the side bar.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/myPrefs/showSidebarActivity": {
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update showSidebarActivity Pref on a Board",
+        "operationId": "put-boards-id-myPrefs-showsidebaractivity",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "Determines whether to show sidebar activity.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/myPrefs/showSidebarBoardActions": {
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update showSidebarBoardActions Pref on a Board",
+        "operationId": "put-boards-id-myPrefs-showsidebarboardactions",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "Determines whether to show the sidebar board actions.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/myPrefs/showSidebarMembers": {
+      "put": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Update showSidebarMembers Pref on a Board",
+        "operationId": "put-boards-id-myPrefs-showsidebarmembers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "Determines whether to show members of the board in the sidebar.",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/": {
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Create a Board",
+        "description": "Create a new board.",
+        "operationId": "post-boards",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The new name for the board. 1 to 16384 characters long.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 16384,
+              "minLength": 1
+            }
+          },
+          {
+            "name": "defaultLabels",
+            "in": "query",
+            "description": "Determines whether to use the default set of labels.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "defaultLists",
+            "in": "query",
+            "description": "Determines whether to add the default set of lists to a board (To Do, Doing, Done). It is ignored if `idBoardSource` is provided.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "desc",
+            "in": "query",
+            "description": "A new description for the board, 0 to 16384 characters long",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 16384
+            }
+          },
+          {
+            "name": "idOrganization",
+            "in": "query",
+            "description": "The id or name of the Workspace the board should belong to.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idBoardSource",
+            "in": "query",
+            "description": "The id of a board to copy into the new board.",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "keepFromSource",
+            "in": "query",
+            "description": "To keep cards from the original board pass in the value `cards`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none",
+              "enum": [
+                "cards",
+                "none"
+              ]
+            }
+          },
+          {
+            "name": "powerUps",
+            "in": "query",
+            "description": "The Power-Ups that should be enabled on the new board. One of: `all`, `calendar`, `cardAging`, `recap`, `voting`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "calendar",
+                "cardAging",
+                "recap",
+                "voting"
+              ]
+            }
+          },
+          {
+            "name": "prefs_permissionLevel",
+            "in": "query",
+            "description": "The permissions level of the board. One of: `org`, `private`, `public`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "private",
+              "enum": [
+                "org",
+                "private",
+                "public"
+              ]
+            }
+          },
+          {
+            "name": "prefs_voting",
+            "in": "query",
+            "description": "Who can vote on this board. One of `disabled`, `members`, `observers`, `org`, `public`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "disabled",
+              "enum": [
+                "disabled",
+                "members",
+                "observers",
+                "org",
+                "public"
+              ]
+            }
+          },
+          {
+            "name": "prefs_comments",
+            "in": "query",
+            "description": "Who can comment on cards on this board. One of: `disabled`, `members`, `observers`, `org`, `public`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "members",
+              "enum": [
+                "disabled",
+                "members",
+                "observers",
+                "org",
+                "public"
+              ]
+            }
+          },
+          {
+            "name": "prefs_invitations",
+            "in": "query",
+            "description": "Determines what types of members can invite users to join. One of: `admins`, `members`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "members",
+              "enum": [
+                "members",
+                "admins"
+              ]
+            }
+          },
+          {
+            "name": "prefs_selfJoin",
+            "in": "query",
+            "description": "Determines whether users can join the boards themselves or whether they have to be invited.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "prefs_cardCovers",
+            "in": "query",
+            "description": "Determines whether card covers are enabled.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "prefs_background",
+            "in": "query",
+            "description": "The id of a custom background or one of: `blue`, `orange`, `green`, `red`, `purple`, `pink`, `lime`, `sky`, `grey`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "blue",
+              "enum": [
+                "blue",
+                "orange",
+                "green",
+                "red",
+                "purple",
+                "pink",
+                "lime",
+                "sky",
+                "grey"
+              ]
+            }
+          },
+          {
+            "name": "prefs_cardAging",
+            "in": "query",
+            "description": "Determines the type of card aging that should take place on the board if card aging is enabled. One of: `pirate`, `regular`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "regular",
+              "enum": [
+                "pirate",
+                "regular"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/calendarKey/generate": {
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Create a calendarKey for a Board",
+        "description": "Create a new board.",
+        "operationId": "post-boards-id-calendarkey-generate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/emailKey/generate": {
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Create a emailKey for a Board",
+        "description": "",
+        "operationId": "post-boards-id-emailkey-generate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/idTags": {
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Create a Tag for a Board",
+        "operationId": "post-boards-id-idtags",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The id of a tag from the organization to which this board belongs.",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/markedAsViewed": {
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Mark Board as viewed",
+        "description": "",
+        "operationId": "post-boards-id-markedasviewed",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the board to update",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/boardPlugins": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the Board",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Enabled Power-Ups on Board",
+        "description": "Get the enabled Power-Ups on a board",
+        "operationId": "get-boards-id-boardplugins",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Plugin"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Enable a Power-Up on a Board",
+        "description": "Enable a Power-Up on a Board",
+        "operationId": "post-boards-id-boardplugins",
+        "parameters": [
+          {
+            "name": "idPlugin",
+            "in": "query",
+            "description": "The ID of the Power-Up to enable",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": true,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/boardPlugins/{idPlugin}": {
+      "delete": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Disable a Power-Up on a Board",
+        "description": "Disable a Power-Up on a board",
+        "operationId": "delete-boards-id-boardplugins",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the board",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "idPlugin",
+            "in": "path",
+            "description": "The ID of the Power-Up to disable",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          }
+        ],
+        "deprecated": true,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/plugins": {
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get Power-Ups on a Board",
+        "description": "List the Power-Ups on a board",
+        "operationId": "get-board-id-plugins",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the board",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TrelloID"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "One of: `enabled` or `available`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "enabled",
+              "enum": [
+                "enabled",
+                "available"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plugin"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/boards/{id}/exports": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the board",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "post": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Create an Export for a Board",
+        "description": "Kick off an export of a board. Only one export may be in progress for a board at a time.",
+        "operationId": "post-boards-id-exports",
+        "parameters": [
+          {
+            "name": "attachments",
+            "in": "query",
+            "description": "Whether the export should include attachments",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "attachment_age",
+            "in": "query",
+            "description": "Only include attachments created within this many days. `0` means no limit.",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 3650,
+              "default": 0
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Export"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/boards/{id}/exports/{idExport}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the board",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        },
+        {
+          "name": "idExport",
+          "in": "path",
+          "description": "The ID of the export",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get an Export for a Board",
+        "description": "Get the status of a board export",
+        "operationId": "get-boards-id-exports-idexport",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Export"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Delete an Export for a Board",
+        "description": "Soft-delete a board export",
+        "operationId": "delete-boards-id-exports-idexport",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/boards/{id}/exports/{idExport}/download": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the board",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        },
+        {
+          "name": "idExport",
+          "in": "path",
+          "description": "The ID of the export",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Download an Export for a Board",
+        "description": "Download the exported file. Redirects to the file location if the export is ready, or errors if it is not.",
+        "operationId": "get-boards-id-exports-idexport-download",
+        "deprecated": false,
+        "responses": {
+          "302": {
+            "description": "Redirects to the export file's download location"
+          },
+          "400": {
+            "description": "Export is not ready for download"
+          }
+        }
+      }
+    },
+    "/boards/{id}/exports/mostRecent": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "The ID of the board",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Quadros"
+        ],
+        "summary": "Get a Board's Most Recent Export",
+        "description": "Get the most recent successful export for a board",
+        "operationId": "get-boards-id-exports-mostrecent",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Export"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Board has no export, or is not in a Workspace"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "APIKey": [],
+      "APIToken": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "APIKey": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "key"
+      },
+      "APIToken": {
+        "in": "query",
+        "name": "token",
+        "type": "apiKey"
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "The specified resource was not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "Action": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "idMemberCreator": {
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "text": {
+                "type": "string",
+                "example": "Can never go wrong with bowie"
+              },
+              "card": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/TrelloID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Bowie"
+                  },
+                  "idShort": {
+                    "type": "integer",
+                    "example": 7
+                  },
+                  "shortLink": {
+                    "type": "string",
+                    "example": "3CsPkqOF"
+                  }
+                }
+              },
+              "board": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/TrelloID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Mullets"
+                  },
+                  "shortLink": {
+                    "type": "string",
+                    "example": "3CsPkqOF"
+                  }
+                }
+              },
+              "list": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "$ref": "#/components/schemas/TrelloID"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Amazing"
+                  }
+                }
+              }
+            }
+          },
+          "type": {
+            "type": "string",
+            "example": "commentCard"
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2020-03-09T19:41:51.396Z"
+          },
+          "limits": {
+            "type": "object",
+            "properties": {
+              "reactions": {
+                "type": "object",
+                "properties": {
+                  "perAction": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "ok"
+                      },
+                      "disableAt": {
+                        "type": "number",
+                        "example": 1000
+                      },
+                      "warnAt": {
+                        "type": "number",
+                        "example": 900
+                      }
+                    }
+                  },
+                  "uniquePerAction": {
+                    "type": "object",
+                    "properties": {
+                      "status": {
+                        "type": "string",
+                        "example": "ok"
+                      },
+                      "disableAt": {
+                        "type": "number",
+                        "example": 1000
+                      },
+                      "warnAt": {
+                        "type": "number",
+                        "example": 900
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "display": {
+            "type": "object",
+            "properties": {
+              "translationKey": {
+                "type": "string",
+                "example": "action_comment_on_card"
+              },
+              "entities": {
+                "type": "object",
+                "properties": {
+                  "contextOn": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "translatable"
+                      },
+                      "translationKey": {
+                        "type": "string",
+                        "example": "action_on"
+                      },
+                      "hideIfContext": {
+                        "type": "boolean"
+                      },
+                      "idContext": {
+                        "type": "string",
+                        "$ref": "#/components/schemas/TrelloID"
+                      }
+                    }
+                  },
+                  "card": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "card"
+                      },
+                      "hideIfContext": {
+                        "type": "boolean"
+                      },
+                      "id": {
+                        "type": "string",
+                        "$ref": "#/components/schemas/TrelloID"
+                      },
+                      "shortLink": {
+                        "type": "string",
+                        "example": "3CsPkqOF"
+                      },
+                      "text": {
+                        "type": "string",
+                        "example": "Bowie"
+                      }
+                    }
+                  },
+                  "comment": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "comment"
+                      },
+                      "text": {
+                        "type": "string",
+                        "example": "Can never go wrong with bowie"
+                      }
+                    }
+                  },
+                  "memberCreator": {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "type": "string",
+                        "example": "member"
+                      },
+                      "id": {
+                        "$ref": "#/components/schemas/TrelloID"
+                      },
+                      "username": {
+                        "type": "string",
+                        "example": "bobloblaw"
+                      },
+                      "text": {
+                        "type": "string",
+                        "example": "Bob Loblaw (World)"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "memberCreator": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "$ref": "#/components/schemas/TrelloID",
+                "example": "5b02e7f4e1facdc393169f9d"
+              },
+              "activityBlocked": {
+                "type": "boolean",
+                "example": false
+              },
+              "avatarHash": {
+                "type": "string",
+                "example": "db2adf80c2e6c26b76e1f10400eb4c45"
+              },
+              "avatarUrl": {
+                "type": "string",
+                "format": "url",
+                "example": "https://trello-members.s3.amazonaws.com/5b02e7f4e1facdc393169f9d/db2adf80c2e6c26b76e1f10400eb4c45"
+              },
+              "fullName": {
+                "type": "string",
+                "example": "Bob Loblaw (Trello)"
+              },
+              "idMemberReferrer": {
+                "type": "string",
+                "$ref": "#/components/schemas/TrelloID",
+                "nullable": true,
+                "example": null
+              },
+              "initials": {
+                "type": "string",
+                "example": "BL"
+              },
+              "username": {
+                "type": "string",
+                "example": "bobloblaw"
+              }
+            }
+          }
+        }
+      },
+      "Board": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the board.",
+            "example": "Trello Platform Changes"
+          },
+          "desc": {
+            "type": "string",
+            "example": "Track changes to Trello's Platform on this board."
+          },
+          "descData": {
+            "type": "string"
+          },
+          "closed": {
+            "type": "boolean",
+            "example": false
+          },
+          "idMemberCreator": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "idOrganization": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "pinned": {
+            "type": "boolean",
+            "example": false
+          },
+          "url": {
+            "type": "string",
+            "format": "url",
+            "example": "https://trello.com/b/dQHqCohZ/trello-platform-changelog"
+          },
+          "shortUrl": {
+            "type": "string",
+            "format": "url",
+            "example": "https://trello.com/b/dQHqCohZ"
+          },
+          "prefs": {
+            "$ref": "#/components/schemas/Prefs"
+          },
+          "labelNames": {
+            "type": "object",
+            "properties": {
+              "green": {
+                "type": "string",
+                "example": "Addition"
+              },
+              "yellow": {
+                "type": "string",
+                "example": "Update"
+              },
+              "orange": {
+                "type": "string",
+                "example": "Deprecation"
+              },
+              "red": {
+                "type": "string",
+                "example": "Deletion"
+              },
+              "purple": {
+                "type": "string",
+                "example": "Power-Ups"
+              },
+              "blue": {
+                "type": "string",
+                "example": "News"
+              },
+              "sky": {
+                "type": "string",
+                "example": "Announcement"
+              },
+              "lime": {
+                "type": "string",
+                "example": "Delight"
+              },
+              "pink": {
+                "type": "string",
+                "example": "REST API"
+              },
+              "black": {
+                "type": "string",
+                "example": "Capabilties"
+              }
+            }
+          },
+          "limits": {
+            "type": "object",
+            "$ref": "#/components/schemas/Limits"
+          },
+          "starred": {
+            "type": "boolean"
+          },
+          "memberships": {
+            "type": "string"
+          },
+          "shortLink": {
+            "type": "string"
+          },
+          "subscribed": {
+            "type": "boolean"
+          },
+          "powerUps": {
+            "type": "string"
+          },
+          "dateLastActivity": {
+            "type": "string",
+            "format": "date"
+          },
+          "dateLastView": {
+            "type": "string",
+            "format": "date"
+          },
+          "idTags": {
+            "type": "string"
+          },
+          "datePluginDisable": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "creationMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "ixUpdate": {
+            "type": "integer"
+          },
+          "templateGallery": {
+            "type": "string",
+            "nullable": true
+          },
+          "enterpriseOwned": {
+            "type": "boolean"
+          }
+        }
+      },
+      "BoardStars": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "585063850027165010be15a8"
+          },
+          "idBoard": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "57f7df684f1ca8c2877162e0"
+          },
+          "pos": {
+            "type": "integer",
+            "example": 32768
+          }
+        }
+      },
+      "CardAging": {
+        "type": "string",
+        "enum": [
+          "pirate",
+          "regular"
+        ]
+      },
+      "Color": {
+        "type": "string",
+        "enum": [
+          "yellow",
+          "purple",
+          "blue",
+          "red",
+          "green",
+          "orange",
+          "black",
+          "sky",
+          "pink",
+          "lime"
+        ],
+        "nullable": true
+      },
+      "CustomField": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5ab10be237846c43015f108e"
+          },
+          "idModel": {
+            "type": "string",
+            "example": "586e8f681d4fe9b06a928307"
+          },
+          "modelType": {
+            "type": "string",
+            "enum": [
+              "card",
+              "board",
+              "member"
+            ],
+            "example": "board"
+          },
+          "fieldGroup": {
+            "type": "string",
+            "example": "f6177ba6839d6fff0f73922c1cea105e793fda8a1433d466104dacc0b7c56955"
+          },
+          "display": {
+            "type": "object",
+            "properties": {
+              "cardFront": {
+                "type": "boolean",
+                "example": true
+              },
+              "name": {
+                "type": "string",
+                "example": "Priority 🏔"
+              },
+              "pos": {
+                "type": "string",
+                "example": "98304,"
+              },
+              "options": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "$ref": "#/components/schemas/TrelloID",
+                      "example": "5ab10be237846c43015f1091"
+                    },
+                    "idCustomField": {
+                      "$ref": "#/components/schemas/TrelloID",
+                      "example": "5ab10be237846c43015f108e"
+                    },
+                    "value": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "example": "High"
+                        }
+                      }
+                    },
+                    "color": {
+                      "type": "string",
+                      "example": "red"
+                    },
+                    "pos": {
+                      "type": "number",
+                      "example": 16384
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "type": {
+            "type": "string",
+            "example": "list"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ]
+      },
+      "Export": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5dced8665015383ed5ca248c"
+          },
+          "status": {
+            "type": "object",
+            "properties": {
+              "attempts": {
+                "type": "number",
+                "example": 0
+              },
+              "finished": {
+                "type": "boolean",
+                "example": false
+              },
+              "stage": {
+                "type": "string",
+                "example": "Export_queued"
+              }
+            }
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-11-15T16:55:02.000Z"
+          },
+          "size": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "exportUrl": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          }
+        }
+      },
+      "ImageDescriptor": {
+        "type": "object",
+        "properties": {
+          "width": {
+            "description": "The width of the image.",
+            "type": "integer",
+            "example": 100
+          },
+          "height": {
+            "description": "The height of the image.",
+            "type": "integer",
+            "example": 64
+          },
+          "url": {
+            "description": "The URL of the image.",
+            "format": "url",
+            "type": "string",
+            "example": "https://trello-backgrounds.s3.amazonaws.com/SharedBackground/100x64/abc/photo-123.jpg"
+          }
+        }
+      },
+      "Label": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "description": "The ID of the label.",
+            "type": "string",
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "idBoard": {
+            "type": "string",
+            "description": "The ID of the board the label is on.",
+            "$ref": "#/components/schemas/TrelloID",
+            "example": "5abbe4b7ddc1b351ef961414"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name displayed for the label.",
+            "example": "Overdue",
+            "nullable": true,
+            "minLength": 0,
+            "maxLength": 16384
+          },
+          "color": {
+            "type": "string",
+            "$ref": "#/components/schemas/Color",
+            "description": "The color of the label. Null means no color and the label will not be shown on the front of Cards."
+          }
+        }
+      },
+      "Limits": {
+        "type": "object",
+        "properties": {
+          "attachments": {
+            "type": "object",
+            "properties": {
+              "perBoard": {
+                "type": "object",
+                "$ref": "#/components/schemas/LimitsObject"
+              }
+            }
+          }
+        }
+      },
+      "LimitsObject": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok",
+              "warning"
+            ]
+          },
+          "disableAt": {
+            "type": "number",
+            "example": 36000
+          },
+          "warnAt": {
+            "type": "number",
+            "example": 32400
+          }
+        }
+      },
+      "MemberFields": {
+        "type": "string",
+        "enum": [
+          "id"
+        ]
+      },
+      "Memberships": {
+        "type": "object",
+        "description": "",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      },
+      "Plugin": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          }
+        }
+      },
+      "Prefs": {
+        "type": "object",
+        "properties": {
+          "permissionLevel": {
+            "type": "string",
+            "enum": [
+              "org",
+              "board"
+            ]
+          },
+          "hideVotes": {
+            "type": "boolean"
+          },
+          "voting": {
+            "type": "string",
+            "enum": [
+              "disabled",
+              "enabled"
+            ]
+          },
+          "comments": {
+            "type": "string"
+          },
+          "invitations": {
+            "enum": [
+              "admins",
+              "members"
+            ]
+          },
+          "selfJoin": {
+            "type": "boolean"
+          },
+          "cardCovers": {
+            "type": "boolean"
+          },
+          "isTemplate": {
+            "type": "boolean"
+          },
+          "cardAging": {
+            "$ref": "#/components/schemas/CardAging"
+          },
+          "calendarFeedEnabled": {
+            "type": "boolean"
+          },
+          "background": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "backgroundImage": {
+            "type": "string",
+            "format": "uri"
+          },
+          "backgroundImageScaled": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImageDescriptor"
+            }
+          },
+          "backgroundTile": {
+            "type": "boolean"
+          },
+          "backgroundBrightness": {
+            "type": "string",
+            "example": "dark"
+          },
+          "backgroundBottomColor": {
+            "type": "string",
+            "example": "#1e2e00"
+          },
+          "backgroundTopColor": {
+            "type": "string",
+            "example": "#ffffff"
+          },
+          "canBePublic": {
+            "type": "boolean"
+          },
+          "canBeEnterprise": {
+            "type": "boolean"
+          },
+          "canBeOrg": {
+            "type": "boolean"
+          },
+          "canBePrivate": {
+            "type": "boolean"
+          },
+          "canInvite": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TrelloID": {
+        "type": "string",
+        "pattern": "^[0-9a-fA-F]{24}$",
+        "example": "5abbe4b7ddc1b351ef961414"
+      },
+      "TrelloList": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TrelloID"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the list",
+            "example": "Things to buy today"
+          },
+          "closed": {
+            "type": "boolean"
+          },
+          "pos": {
+            "type": "number"
+          },
+          "softLimit": {
+            "type": "string"
+          },
+          "idBoard": {
+            "type": "string"
+          },
+          "subscribed": {
+            "type": "boolean"
+          },
+          "limits": {
+            "$ref": "#/components/schemas/Limits"
+          }
+        }
+      },
+      "ViewFilter": {
+        "type": "string",
+        "enum": [
+          "all",
+          "closed",
+          "none",
+          "open"
+        ]
+      }
+    }
+  }
+}

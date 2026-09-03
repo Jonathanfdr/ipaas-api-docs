@@ -1,0 +1,665 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Trello REST API - Checklists",
+    "version": "0.0.1"
+  },
+  "servers": [
+    {
+      "url": "https://api.trello.com/1"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Checklists"
+    }
+  ],
+  "paths": {
+    "/checklists": {
+      "post": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Create a Checklist",
+        "description": "",
+        "operationId": "post-checklists",
+        "parameters": [
+          {
+            "name": "idCard",
+            "in": "query",
+            "description": "The ID of the Card that the checklist should be added to.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "example": "5abbe4b7ddc1b351ef961414"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the checklist. Should be a string of length 1 to 16384.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 16384,
+              "minLength": 1
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "The position of the checklist on the card. One of: `top`, `bottom`, or a positive number.",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ]
+                },
+                {
+                  "type": "number",
+                  "format": "float",
+                  "example": 1293.5
+                }
+              ]
+            }
+          },
+          {
+            "name": "idChecklistSource",
+            "in": "query",
+            "description": "The ID of a checklist to copy into the new checklist.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "example": "5abbe4b7ddc1b351ef961414"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/checklists/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of a checklist.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "example": "5abbe4b7ddc1b351ef961414"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Get a Checklist",
+        "description": "",
+        "operationId": "get-checklists-id",
+        "parameters": [
+          {
+            "name": "cards",
+            "in": "query",
+            "description": "Valid values: `all`, `closed`, `none`, `open`, `visible`. Cards is a nested resource. The additional query params available are documented at [Cards Nested Resource](/cloud/trello/guides/rest-api/nested-resources/#cards-nested-resource).",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "none",
+              "enum": [
+                "all",
+                "closed",
+                "none",
+                "open",
+                "visible"
+              ]
+            }
+          },
+          {
+            "name": "checkItems",
+            "in": "query",
+            "description": "The check items on the list to return. One of: `all`, `none`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "none"
+              ],
+              "default": "all"
+            }
+          },
+          {
+            "name": "checkItem_fields",
+            "in": "query",
+            "description": "The fields on the checkItem to return if checkItems are being returned. `all` or a comma-separated list of: `name`, `nameData`, `pos`, `state`, `type`, `due`, `dueReminder`, `idMember`",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "name, nameData, pos, state, due, dueReminder, idMember",
+              "enum": [
+                "all",
+                "name",
+                "nameData",
+                "pos",
+                "state",
+                "type",
+                "due",
+                "dueReminder",
+                "idMember"
+              ]
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of checklist [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Update a Checklist",
+        "description": "Update an existing checklist.",
+        "operationId": "put-checlists-id",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name of the new checklist being created. Should be length of 1 to 16384.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "Determines the position of the checklist on the card. One of: `top`, `bottom`, or a positive number.",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ]
+                },
+                {
+                  "type": "number",
+                  "format": "float",
+                  "example": 1293.5
+                }
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Delete a Checklist",
+        "description": "Delete a checklist",
+        "operationId": "delete-checklists-id",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/checklists/{id}/{field}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of a checklist.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "example": "5abbe4b7ddc1b351ef961414"
+          }
+        },
+        {
+          "name": "field",
+          "in": "path",
+          "description": "Field to update.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "enum": [
+              "name",
+              "pos"
+            ]
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Get field on a Checklist",
+        "description": "",
+        "operationId": "get-checklists-id-field",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Update field on a Checklist",
+        "description": "",
+        "operationId": "put-checklists-id-field",
+        "parameters": [
+          {
+            "name": "value",
+            "in": "query",
+            "description": "The value to change the checklist name to. Should be a string of length 1 to 16384.",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "oneOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "top",
+                        "bottom"
+                      ]
+                    },
+                    {
+                      "type": "number",
+                      "format": "float",
+                      "example": 1293.5
+                    }
+                  ]
+                },
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-fA-F]{24}$",
+                  "example": "5abbe4b7ddc1b351ef961414"
+                }
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/checklists/{id}/board": {
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Get the Board the Checklist is on",
+        "description": "",
+        "operationId": "get-checklists-id-board",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of a checklist.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "example": "5abbe4b7ddc1b351ef961414"
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "`all` or a comma-separated list of board [fields](/cloud/trello/guides/rest-api/object-definitions/)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "all",
+                "name"
+              ],
+              "default": "all"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/checklists/{id}/cards": {
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Get the Card a Checklist is on",
+        "description": "",
+        "operationId": "get-checklists-id-cards",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of a checklist.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "example": "5abbe4b7ddc1b351ef961414"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/checklists/{id}/checkItems": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of a checklist.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "example": "5abbe4b7ddc1b351ef961414"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Get Checkitems on a Checklist",
+        "description": "",
+        "operationId": "get-checklists-id-checkitems",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "description": "One of: `all`, `none`.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "all",
+              "enum": [
+                "all",
+                "none"
+              ]
+            }
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "One of: `all`, `name`, `nameData`, `pos`, `state`,`type`, `due`, `dueReminder`, `idMember`.",
+            "required": false,
+            "explode": false,
+            "style": "form",
+            "schema": {
+              "type": "string",
+              "default": "name, nameData, pos, state, due, dueReminder, idMember",
+              "enum": [
+                "all",
+                "name",
+                "nameData",
+                "pos",
+                "state",
+                "type",
+                "due",
+                "dueReminder",
+                "idMember"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Create Checkitem on Checklist",
+        "description": "",
+        "operationId": "post-checklists-id-checkitems",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "The name of the new check item on the checklist. Should be a string of length 1 to 16384.",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 16384,
+              "minLength": 1
+            }
+          },
+          {
+            "name": "pos",
+            "in": "query",
+            "description": "The position of the check item in the checklist. One of: `top`, `bottom`, or a positive number.",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "top",
+                    "bottom"
+                  ]
+                },
+                {
+                  "type": "number",
+                  "format": "float",
+                  "example": 1293.5
+                }
+              ],
+              "type": "string",
+              "default": "bottom"
+            }
+          },
+          {
+            "name": "checked",
+            "in": "query",
+            "description": "Determines whether the check item is already checked when created.",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "due",
+            "in": "query",
+            "description": "A due date for the checkitem",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dueReminder",
+            "in": "query",
+            "description": "A dueReminder for the due date on the checkitem",
+            "required": false,
+            "schema": {
+              "type": "number",
+              "nullable": true
+            }
+          },
+          {
+            "name": "idMember",
+            "in": "query",
+            "description": "An ID of a member resource.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{24}$",
+              "example": "5abbe4b7ddc1b351ef961414"
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/checklists/{id}/checkItems/{idCheckItem}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "description": "ID of a checklist.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "example": "5abbe4b7ddc1b351ef961414"
+          }
+        },
+        {
+          "name": "idCheckItem",
+          "in": "path",
+          "description": "ID of the check item to retrieve.",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{24}$",
+            "example": "5abbe4b7ddc1b351ef961414"
+          }
+        }
+      ],
+      "get": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Get a Checkitem on a Checklist",
+        "description": "",
+        "operationId": "get-checklists-id-checkitems-idcheckitem",
+        "parameters": [
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "One of: `all`, `name`, `nameData`, `pos`, `state`, `type`, `due`, `dueReminder`, `idMember`,.",
+            "required": false,
+            "style": "form",
+            "explode": false,
+            "schema": {
+              "type": "string",
+              "default": "name, nameData, pos, state, due, dueReminder, idMember",
+              "enum": [
+                "all",
+                "name",
+                "nameData",
+                "pos",
+                "state",
+                "type",
+                "due",
+                "dueReminder",
+                "idMember"
+              ]
+            }
+          }
+        ],
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Checklists"
+        ],
+        "summary": "Delete Checkitem from Checklist",
+        "description": "Remove an item from a checklist",
+        "operationId": "delete-checklists-id-checkitems-idcheckitem",
+        "deprecated": false,
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "APIKey": [],
+      "APIToken": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "APIKey": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "key"
+      },
+      "APIToken": {
+        "in": "query",
+        "name": "token",
+        "type": "apiKey"
+      }
+    }
+  }
+}

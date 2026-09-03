@@ -21,6 +21,7 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 LIMITE_PROFUNDIDADE = 40
+METODOS = ("get", "post", "put", "delete", "patch", "head", "options")
 
 
 def resolver_ponteiro(spec, ref):
@@ -94,6 +95,9 @@ def validar_para_ipaas(spec):
     problemas = []
     for caminho, metodos in spec.get("paths", {}).items():
         for metodo, op in metodos.items():
+            # o path item tambem carrega chaves que nao sao metodo (ex.: `parameters`)
+            if metodo not in METODOS:
+                continue
             alvo = f"{metodo.upper()} {caminho}"
             if not op.get("tags"):
                 problemas.append(f"{alvo}: sem 'tags' — o import falha com HTTP 500")
