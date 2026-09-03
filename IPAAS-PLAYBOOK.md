@@ -617,7 +617,7 @@ GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initia
 | BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
 | Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados; conta criada e validada; diagrama com POST (`inBody`) e encadeamento entre steps executado `DONE`, criando cliente e cobrança reais no sandbox |
 | Brevo | `API_KEY` (header `api-key`) | 68 em 4 serviços | 68 recursos importados a partir da spec oficial convertida de Swagger 2.0; conta criada; diagrama com 6 steps em 3 serviços executado `DONE`, incluindo `POST /smtp/email` em modo sandbox. Serviço `SMS Transacional` **não validado**: plano gratuito não tem crédito de SMS e todos os endpoints respondem 500 |
-| Trello | `API_KEY` (query `key` + `token`) | 151 em 5 serviços | 151 recursos importados; exigiu injetar `tags` (a spec oficial não tem nenhuma) e remover `securitySchemes` em query, que quebrava o importador; **conta e diagrama pendentes** (falta `key` e `token`) |
+| Trello | `API_KEY` (query `key` + `token`) | 151 em 5 serviços | 151 recursos importados; exigiu injetar `tags` (a spec oficial não tem nenhuma) e remover `securitySchemes` em query, que quebrava o importador; conta com **duas** chaves em query criada; diagrama com 6 steps em 4 serviços executado `DONE`, criando cartão real e encadeando `{{{id4.id}}}` |
 
 ---
 
@@ -687,10 +687,27 @@ A chave usada na conta foi compartilhada em chat e **deve ser rotacionada**. Se 
 | Serviço `Listas` (11 recursos) | `74ea1120-5a3a-428d-bb72-3c1255b9b38d` |
 | Serviço `Checklists` (12 recursos) | `c2dbb561-de72-4f2b-bfa1-88e81132e912` |
 | Serviço `Membros` (45 recursos) | `fd451172-56a2-4213-8dd7-3917f8002b35` |
+| Conta `Produção` (`key` + `token` em query) | `6cbe201d-20ac-4690-ab14-41ed3eadda27` |
+| Diagrama `Valida Trello` (`integrationId`) | `efd24ad0-700d-45b0-8762-6b2d3ab5c917` |
 
-**Sem conta ainda** — faltam a `key` e o `token`. A `key` sai de um Power-Up em `trello.com/power-ups/admin`, aba API Key; o `token` se gera na mesma tela. Este é o primeiro app com `addTo: query` e com **duas** chaves na mesma conta.
+Primeiro app com `addTo: query` e com **duas chaves na mesma conta**. O modelo `API_KEY` aceita a lista, então `key` e `token` convivem sem precisar de nada especial:
 
-**A spec oficial não descreve a resposta de 91 das 151 operações.** Os recursos importam e executam, e o payload inteiro fica disponível no diagrama via `{{{idN}}}`; o que falta é o mapeamento campo a campo no builder. Conferido: `GET /boards/{id}` importou com 26 campos de resposta, `inPath(1)`, `inQuery(16)`; `GET /boards/{id}/cards` importou com 0 campos de resposta.
+```json
+"config": { "outputSchema": { "addTo": "query",
+  "keys": [{ "key": "key", "value": "..." }, { "key": "token", "value": "..." }] } }
+```
+
+As credenciais usadas foram compartilhadas em chat e **devem ser rotacionadas**. Cuidado para não confundir as três coisas que o Trello chama de credencial: a **API key** identifica o Power-Up, o **secret** só serve para assinatura OAuth1 (o iPaaS não usa) e o **token** é o que vai em `?token=`. Passar o secret como token responde `401 invalid key`, mensagem que não ajuda. O token se gera em:
+
+```
+https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&name=<app>&key=<APIKey>
+```
+
+**O Trello passa tudo em query, inclusive escrita.** `POST /cards` tem 18 parâmetros, todos `in: query`, e nenhum `requestBody`. Ou seja, a limitação do importador com corpo de POST/PUT (seção 4) **não afeta este app** — os campos de escrita vêm no `inQuery` do recurso e o diagrama usa `configurations.inQuery`.
+
+**A spec oficial não descreve a resposta de 91 das 151 operações.** Os recursos importam e executam normalmente: na validação, `GET /boards/{id}/lists` (sem schema na spec) devolveu as 4 listas no payload. O que falta é o mapeamento campo a campo no builder. Conferido no import: `GET /boards/{id}` com 26 campos de resposta, `inPath(1)`, `inQuery(16)`; `GET /boards/{id}/cards` com 0 campos.
+
+O quadro de teste é `Meu quadro do Trello` (`6a997347d853e6791ec05a9c`), lista `Hoje` (`6a997347d853e6791ec05b1a`). A execução criou o cartão `6a997aa9b8b19364ad236f50` de verdade; reexecutar o diagrama cria um novo cartão a cada vez.
 
 ### API BRASIL (app nativo TOTVS) — `NO_AUTH`
 App do catálogo TOTVS, não do nosso tenant (`ownerTenantName: TOTVS`, `isCustom: false`). Já existia com um serviço `Api` de um único recurso; recebeu um serviço novo com a spec completa da BrasilAPI.

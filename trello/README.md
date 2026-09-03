@@ -14,13 +14,27 @@ Não há sandbox. Crie um workspace/quadro só para teste.
 
 ## Obter as credenciais
 
-A API do Trello exige **duas** credenciais, ambas em query string:
+A API do Trello exige **duas** credenciais, ambas em query string. Cuidado para não confundir com o *secret*, que é uma terceira coisa:
+
+| Credencial | Para que serve |
+|---|---|
+| **API key** | identifica o Power-Up; vai em `?key=` |
+| **Secret** | assinatura OAuth1; o modelo `API_KEY` do iPaaS **não usa** |
+| **Token** | autoriza acesso aos dados do usuário; vai em `?token=` |
 
 1. Crie um Power-Up em https://trello.com/power-ups/admin (é o pré-requisito para ter API key).
 2. No Power-Up, aba **API Key**, use **Generate a new API Key**.
-3. Na mesma tela há o link para gerar o **token** do seu usuário, que autoriza o acesso aos seus dados.
+3. Gere o token autorizando o app:
 
-A `key` identifica a aplicação e é considerada pública pela própria Atlassian; o `token` dá acesso aos dados do usuário e **é secreto**. Ambos vão na query de toda requisição:
+```
+https://trello.com/1/authorize?expiration=never&scope=read,write&response_type=token&name=TOTVS%20iPaaS&key=<APIKey>
+```
+
+`expiration=never` evita que a conta no iPaaS pare de funcionar em 30 dias. `scope=read` basta se o fluxo só consulta.
+
+Passar o secret no lugar do token responde `401 invalid key` — mensagem que não indica a causa. Um token malformado responde `401 invalid app token`, o que serve para confirmar que a `key` está correta.
+
+A `key` é considerada pública pela própria Atlassian; o `token` dá acesso aos dados do usuário e **é secreto**. Ambos vão na query de toda requisição:
 
 ```
 GET https://api.trello.com/1/members/me/boards?key=<key>&token=<token>
@@ -114,6 +128,31 @@ A causa real: **o importador não aceita `securitySchemes` de `type: apiKey` com
 Descartadas no caminho: `oneOf` nos parâmetros, `parameters` no nível do path, respostas sem `content`, quantidade de operações e operações individuais (as 12 do serviço `Checklists` importam uma por uma).
 
 O `dereference.py` passou a remover esses esquemas ao gerar o `.ipaas.json`, avisando no console. As specs fonte mantêm o que o fornecedor publica. Nada se perde em execução: quem injeta `key` e `token` na query é a conta do iPaaS.
+
+## Escrita vai em query, não em corpo
+
+`POST /cards` tem 18 parâmetros, **todos `in: query`**, e nenhum `requestBody`. O mesmo vale para as demais operações de escrita da API. Isso significa que a limitação do importador do iPaaS — que ignora o corpo de POST/PUT — **não afeta este app**: os campos de escrita chegam no `inQuery` do recurso e o diagrama preenche `configurations.inQuery`, sem precisar montar `inBody` à mão.
+
+## Validação
+
+Validado em diagrama (`Valida Trello`, projeto `Validação apps`): 6 steps em série cobrindo 4 dos 5 serviços, execução `DONE` em 8,2s.
+
+| Step | Operação | Resultado |
+|---|---|---|
+| 1 | `GET /members/me` | usuário autenticado |
+| 2 | `GET /boards/{id}` | quadro com `name` e `url` |
+| 3 | `GET /boards/{id}/lists` | as 4 listas do quadro |
+| 4 | `POST /cards` | cartão criado de verdade, objeto completo na resposta |
+| 5 | `GET /cards/{id}` | cartão lido com `inPath` = `{{{id4.id}}}` |
+| 6 | `GET /lists/{id}` | lista com `name` |
+
+Isso exercitou o que faltava no catálogo: `API_KEY` em **query** com **duas chaves** na mesma conta, escrita via `inQuery` e encadeamento `{{{idN.campo}}}` entre steps.
+
+O step 3 é a prova prática sobre as respostas sem schema: `GET /boards/{id}/lists` não tem schema na spec oficial e ainda assim devolveu as 4 listas no payload. O contrato ausente afeta o builder, não a execução.
+
+Não foi validado o serviço `Checklists`, cujas 12 operações estão importadas mas não entraram no diagrama.
+
+O quadro usado no teste foi `Meu quadro do Trello`, lista `Hoje`. **Cada execução do diagrama cria um cartão novo** — não há sandbox, então o efeito é na conta real.
 
 ## Limitação da spec oficial: respostas sem schema
 
