@@ -24,6 +24,7 @@ Aplicativo → Ambiente → [Conta] → Serviço → Importar Swagger → Valida
 |---|---|---|---|
 | [brasilapi](./brasilapi) | `NO_AUTH` | 16 | importado e validado em diagrama |
 | [asaas](./asaas) | `API_KEY` (header `access_token`) | 41 em 3 serviços | importado e validado em diagrama |
+| [brevo](./brevo) | `API_KEY` (header `api-key`) | 68 em 4 serviços | importado |
 
 ## Estrutura
 

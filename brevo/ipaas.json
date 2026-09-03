@@ -1,0 +1,57 @@
+{
+  "app": {
+    "name": "Brevo",
+    "description": "Plataforma de marketing e mensageria: contatos e listas, e-mails transacionais, campanhas de e-mail e SMS transacional."
+  },
+  "environments": [
+    {
+      "name": "Produção",
+      "type": "REST",
+      "baseURL": "https://api.brevo.com/v3",
+      "authModels": ["API_KEY"]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Produção",
+      "environment": "Produção",
+      "authModel": "API_KEY",
+      "addTo": "header",
+      "keys": [{ "key": "api-key", "value": "<chave de API, cadastrar na interface>" }]
+    }
+  ],
+  "services": [
+    {
+      "name": "Contatos",
+      "description": "Contatos, listas, pastas, segmentos e atributos personalizados",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "user",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brevo/openapi-contatos.ipaas.json"
+    },
+    {
+      "name": "E-mails Transacionais",
+      "description": "Envio de e-mail transacional, templates, estatísticas e contatos bloqueados",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "mail",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brevo/openapi-emails-transacionais.ipaas.json"
+    },
+    {
+      "name": "Campanhas de E-mail",
+      "description": "Criação, envio e relatórios de campanhas de e-mail",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "product",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brevo/openapi-campanhas-email.ipaas.json"
+    },
+    {
+      "name": "SMS Transacional",
+      "description": "Envio de SMS transacional e estatísticas de atividade",
+      "environment": "Produção",
+      "resourceType": "REST",
+      "icon": "adb",
+      "swaggerUrl": "https://raw.githubusercontent.com/dugabriel/ipaas-api-docs/main/brevo/openapi-sms-transacional.ipaas.json"
+    }
+  ]
+}

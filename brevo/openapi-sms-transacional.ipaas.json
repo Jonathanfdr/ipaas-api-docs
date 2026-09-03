@@ -1,0 +1,978 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "description": "Brevo provide a RESTFul API that can be used with any languages. With this API, you will be able to :\n  - Manage your campaigns and get the statistics\n  - Manage your contacts\n  - Send transactional Emails and SMS\n  - and much more...\n\nYou can download our wrappers at https://github.com/orgs/brevo\n\n**Possible responses**\n  | Code | Message |\n  | :-------------: | ------------- |\n  | 200  | OK. Successful Request  |\n  | 201  | OK. Successful Creation |\n  | 202  | OK. Request accepted |\n  | 204  | OK. Successful Update/Deletion  |\n  | 400  | Error. Bad Request  |\n  | 401  | Error. Authentication Needed  |\n  | 402  | Error. Not enough credit, plan upgrade needed  |\n  | 403  | Error. Permission denied  |\n  | 404  | Error. Object does not exist |\n  | 405  | Error. Method not allowed  |\n  | 406  | Error. Not Acceptable  |\n  | 422  | Error. Unprocessable Entity |\n",
+    "version": "3.0.0",
+    "title": "Brevo API - Transactional SMS",
+    "contact": {
+      "name": "Brevo Support",
+      "url": "https://account.brevo.com/support",
+      "email": "contact@brevo.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "http://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.brevo.com/v3"
+    }
+  ],
+  "tags": [],
+  "paths": {
+    "/transactionalSMS/sms": {
+      "post": {
+        "tags": [
+          "Transactional SMS"
+        ],
+        "summary": "Send SMS message to a mobile number",
+        "operationId": "sendTransacSms",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "content",
+                  "recipient",
+                  "sender"
+                ],
+                "properties": {
+                  "sender": {
+                    "type": "string",
+                    "example": "MyShop",
+                    "description": "Name of the sender. **The number of characters is limited to 11 for alphanumeric characters and 15 for numeric characters**",
+                    "maxLength": 15
+                  },
+                  "recipient": {
+                    "type": "string",
+                    "example": "33689965433",
+                    "description": "Mobile number to send SMS with the country code"
+                  },
+                  "content": {
+                    "type": "string",
+                    "example": "Enter this code:CCJJG8 to validate your account",
+                    "description": "Content of the message. If more than 160 characters long, will be sent as multiple text messages"
+                  },
+                  "type": {
+                    "type": "string",
+                    "example": "marketing",
+                    "description": "Type of the SMS. Marketing SMS messages are those sent typically with marketing content. Transactional SMS messages are sent to individuals and are triggered in response to some action, such as a sign-up, purchase, etc.",
+                    "enum": [
+                      "transactional",
+                      "marketing"
+                    ],
+                    "default": "transactional"
+                  },
+                  "tag": {
+                    "type": "string",
+                    "example": "accountValidation",
+                    "description": "Tag of the message"
+                  },
+                  "webUrl": {
+                    "type": "string",
+                    "format": "url",
+                    "example": "http://requestb.in/173lyyx1",
+                    "description": "Webhook to call for each event triggered by the message (delivered etc.)"
+                  },
+                  "unicodeEnabled": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "Format of the message. It indicates whether the content should be treated as unicode or not.",
+                    "default": false
+                  },
+                  "organisationPrefix": {
+                    "type": "string",
+                    "example": "MyCompany",
+                    "description": "A recognizable prefix will ensure your audience knows who you are. Recommended by U.S. carriers. This will be added as your Brand Name before the message content. **Prefer verifying maximum length of 160 characters including this prefix in message content to avoid multiple sending of same sms.**"
+                  }
+                }
+              }
+            }
+          },
+          "description": "Values to send a transactional SMS",
+          "required": true,
+          "x-exportParamName": "SendTransacSms"
+        },
+        "responses": {
+          "201": {
+            "description": "SMS has been sent successfully to the recipient",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "messageId",
+                    "reference"
+                  ],
+                  "properties": {
+                    "reference": {
+                      "type": "string",
+                      "example": "ab1cde2fgh3i4jklmno"
+                    },
+                    "messageId": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1511882900176220
+                    },
+                    "smsCount": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 2,
+                      "description": "Count of SMS's to send multiple text messages"
+                    },
+                    "usedCredits": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 0.7,
+                      "description": "SMS credits used per text message"
+                    },
+                    "remainingCredits": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 82.85,
+                      "description": "Remaining SMS credits of the user"
+                    }
+                  },
+                  "example": {
+                    "reference": "ab1cde2fgh3i4jklmno",
+                    "remainingCredits": 82.85,
+                    "smsCount": 2,
+                    "messageId": 1511882900176220,
+                    "usedCredits": 0.7
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "method_not_allowed",
+                      "description": "Error code displayed in case of a failure",
+                      "enum": [
+                        "invalid_parameter",
+                        "missing_parameter",
+                        "out_of_range",
+                        "campaign_processing",
+                        "campaign_sent",
+                        "document_not_found",
+                        "reseller_permission_denied",
+                        "not_enough_credits",
+                        "permission_denied",
+                        "duplicate_parameter",
+                        "duplicate_request",
+                        "method_not_allowed",
+                        "unauthorized",
+                        "account_under_validation",
+                        "not_acceptable",
+                        "bad_request",
+                        "unprocessable_entity"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "POST Method is not allowed on this path",
+                      "description": "Readable message associated to the failure"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "You don't have enough credit to send your SMS. Please update your plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "method_not_allowed",
+                      "description": "Error code displayed in case of a failure",
+                      "enum": [
+                        "invalid_parameter",
+                        "missing_parameter",
+                        "out_of_range",
+                        "campaign_processing",
+                        "campaign_sent",
+                        "document_not_found",
+                        "reseller_permission_denied",
+                        "not_enough_credits",
+                        "permission_denied",
+                        "duplicate_parameter",
+                        "duplicate_request",
+                        "method_not_allowed",
+                        "unauthorized",
+                        "account_under_validation",
+                        "not_acceptable",
+                        "bad_request",
+                        "unprocessable_entity"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "POST Method is not allowed on this path",
+                      "description": "Readable message associated to the failure"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactionalSMS/statistics/aggregatedReport": {
+      "get": {
+        "tags": [
+          "Transactional SMS"
+        ],
+        "summary": "Get your SMS activity aggregated over a period of time",
+        "operationId": "getTransacAggregatedSmsReport",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Mandatory if endDate is used. Starting date (YYYY-MM-DD) of the report",
+            "required": false,
+            "x-exportParamName": "StartDate",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "Mandatory if startDate is used. Ending date (YYYY-MM-DD) of the report",
+            "required": false,
+            "x-exportParamName": "EndDate",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "description": "Number of days in the past including today (positive integer). Not compatible with startDate and endDate",
+            "required": false,
+            "x-exportParamName": "Days",
+            "x-optionalDataType": "Int64",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Filter on a tag",
+            "required": false,
+            "x-exportParamName": "Tag",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated SMS report informations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "range": {
+                      "type": "string",
+                      "example": "2016-09-08|2017-04-06",
+                      "description": "Time frame of the report"
+                    },
+                    "requests": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 263,
+                      "description": "Number of requests for the timeframe"
+                    },
+                    "delivered": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 249,
+                      "description": "Number of delivered SMS for the timeframe"
+                    },
+                    "hardBounces": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1,
+                      "description": "Number of hardbounces for the timeframe"
+                    },
+                    "softBounces": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 4,
+                      "description": "Number of softbounces for the timeframe"
+                    },
+                    "blocked": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 2,
+                      "description": "Number of blocked contact for the timeframe"
+                    },
+                    "unsubscribed": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 6,
+                      "description": "Number of unsubscription for the timeframe"
+                    },
+                    "replied": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 12,
+                      "description": "Number of answered SMS for the timeframe"
+                    },
+                    "accepted": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 252,
+                      "description": "Number of accepted SMS for the timeframe"
+                    },
+                    "rejected": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 8,
+                      "description": "Number of rejected SMS for the timeframe"
+                    },
+                    "skipped": {
+                      "type": "integer",
+                      "format": "int64",
+                      "example": 1,
+                      "description": "Number of skipped SMS for the timeframe"
+                    }
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "range": "2015-05-22|2017-11-29",
+                      "requests": 54,
+                      "delivered": 16,
+                      "hardBounces": 5,
+                      "softBounces": 26,
+                      "blocked": 4,
+                      "unsubscribed": 10,
+                      "replied": 8,
+                      "accepted": 6,
+                      "rejected": 14,
+                      "skipped": 3
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "method_not_allowed",
+                      "description": "Error code displayed in case of a failure",
+                      "enum": [
+                        "invalid_parameter",
+                        "missing_parameter",
+                        "out_of_range",
+                        "campaign_processing",
+                        "campaign_sent",
+                        "document_not_found",
+                        "reseller_permission_denied",
+                        "not_enough_credits",
+                        "permission_denied",
+                        "duplicate_parameter",
+                        "duplicate_request",
+                        "method_not_allowed",
+                        "unauthorized",
+                        "account_under_validation",
+                        "not_acceptable",
+                        "bad_request",
+                        "unprocessable_entity"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "POST Method is not allowed on this path",
+                      "description": "Readable message associated to the failure"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactionalSMS/statistics/reports": {
+      "get": {
+        "tags": [
+          "Transactional SMS"
+        ],
+        "summary": "Get your SMS activity aggregated per day",
+        "operationId": "getTransacSmsReport",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Mandatory if endDate is used. Starting date (YYYY-MM-DD) of the report",
+            "required": false,
+            "x-exportParamName": "StartDate",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "Mandatory if startDate is used. Ending date (YYYY-MM-DD) of the report",
+            "required": false,
+            "x-exportParamName": "EndDate",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "description": "Number of days in the past including today (positive integer). Not compatible with 'startDate' and 'endDate'",
+            "required": false,
+            "x-exportParamName": "Days",
+            "x-optionalDataType": "Int64",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Filter on a tag",
+            "required": false,
+            "x-exportParamName": "Tag",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort the results in the ascending/descending order of record creation. Default order is **descending** if `sort` is not passed",
+            "required": false,
+            "x-exportParamName": "Sort",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Aggregated SMS report informations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "reports": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "date": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2017-03-17",
+                            "description": "Date for which statistics are retrieved"
+                          },
+                          "requests": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 87,
+                            "description": "Number of requests for the date"
+                          },
+                          "delivered": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 85,
+                            "description": "Number of delivered SMS for the date"
+                          },
+                          "hardBounces": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1,
+                            "description": "Number of hardbounces for the date"
+                          },
+                          "softBounces": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1,
+                            "description": "Number of softbounces for the date"
+                          },
+                          "blocked": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 0,
+                            "description": "Number of blocked contact for the date"
+                          },
+                          "unsubscribed": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1,
+                            "description": "Number of unsubscription for the date"
+                          },
+                          "replied": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 2,
+                            "description": "Number of answered SMS for the date"
+                          },
+                          "accepted": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 85,
+                            "description": "Number of accepted SMS for the date"
+                          },
+                          "rejected": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1,
+                            "description": "Number of rejected SMS for the date"
+                          },
+                          "skipped": {
+                            "type": "integer",
+                            "format": "int64",
+                            "example": 1,
+                            "description": "Number of skipped SMS for the date"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "reports": [
+                        {
+                          "date": "2017-04-30",
+                          "requests": 10756,
+                          "delivered": 10103,
+                          "hardBounces": 21,
+                          "softBounces": 137,
+                          "blocked": 1026,
+                          "unsubscribed": 720,
+                          "replied": 5091,
+                          "accepted": 2318,
+                          "rejected": 0,
+                          "skipped": 1
+                        },
+                        {
+                          "date": "2017-05-01",
+                          "requests": 18812,
+                          "delivered": 17499,
+                          "hardBounces": 34,
+                          "softBounces": 254,
+                          "blocked": 1514,
+                          "unsubscribed": 1090,
+                          "replied": 10089,
+                          "accepted": 4393,
+                          "rejected": 0,
+                          "skipped": 0
+                        },
+                        {
+                          "date": "2017-05-02",
+                          "requests": 14321,
+                          "delivered": 13427,
+                          "hardBounces": 16,
+                          "softBounces": 176,
+                          "blocked": 1646,
+                          "unsubscribed": 1170,
+                          "replied": 11563,
+                          "accepted": 4689,
+                          "rejected": 0,
+                          "skipped": 1
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "method_not_allowed",
+                      "description": "Error code displayed in case of a failure",
+                      "enum": [
+                        "invalid_parameter",
+                        "missing_parameter",
+                        "out_of_range",
+                        "campaign_processing",
+                        "campaign_sent",
+                        "document_not_found",
+                        "reseller_permission_denied",
+                        "not_enough_credits",
+                        "permission_denied",
+                        "duplicate_parameter",
+                        "duplicate_request",
+                        "method_not_allowed",
+                        "unauthorized",
+                        "account_under_validation",
+                        "not_acceptable",
+                        "bad_request",
+                        "unprocessable_entity"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "POST Method is not allowed on this path",
+                      "description": "Readable message associated to the failure"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transactionalSMS/statistics/events": {
+      "get": {
+        "tags": [
+          "Transactional SMS"
+        ],
+        "summary": "Get all your SMS activity (unaggregated events)",
+        "operationId": "getSmsEvents",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of documents per page",
+            "required": false,
+            "x-exportParamName": "Limit",
+            "x-optionalDataType": "Int64",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "maximum": 100,
+              "default": 50
+            }
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "description": "Mandatory if endDate is used. Starting date (YYYY-MM-DD) of the report",
+            "required": false,
+            "x-exportParamName": "StartDate",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "description": "Mandatory if startDate is used. Ending date (YYYY-MM-DD) of the report",
+            "required": false,
+            "x-exportParamName": "EndDate",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Index of the first document of the page",
+            "required": false,
+            "x-exportParamName": "Offset",
+            "x-optionalDataType": "Int64",
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "default": 0
+            }
+          },
+          {
+            "name": "days",
+            "in": "query",
+            "description": "Number of days in the past including today (positive integer). Not compatible with 'startDate' and 'endDate'",
+            "required": false,
+            "x-exportParamName": "Days",
+            "x-optionalDataType": "Int64",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "phoneNumber",
+            "in": "query",
+            "description": "Filter the report for a specific phone number",
+            "required": false,
+            "x-exportParamName": "PhoneNumber",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "event",
+            "in": "query",
+            "description": "Filter the report for specific events",
+            "required": false,
+            "x-exportParamName": "Event",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "bounces",
+                "hardBounces",
+                "softBounces",
+                "delivered",
+                "sent",
+                "accepted",
+                "unsubscription",
+                "replies",
+                "blocked",
+                "rejected",
+                "skipped"
+              ]
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Filter the report for specific tags passed as a serialized urlencoded array",
+            "required": false,
+            "x-exportParamName": "Tags",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort the results in the ascending/descending order of record creation. Default order is **descending** if `sort` is not passed",
+            "required": false,
+            "x-exportParamName": "Sort",
+            "x-optionalDataType": "String",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ],
+              "default": "desc"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sms events report informations",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "events": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "phoneNumber": {
+                            "type": "string",
+                            "example": "00189001094",
+                            "description": "Phone number which has generated the event"
+                          },
+                          "date": {
+                            "type": "string",
+                            "example": "2017-03-12T12:30:00Z",
+                            "description": "UTC date-time on which the event has been generated"
+                          },
+                          "messageId": {
+                            "type": "string",
+                            "example": "1472640582425378",
+                            "description": "Message ID which generated the event"
+                          },
+                          "event": {
+                            "type": "string",
+                            "example": "accepted",
+                            "description": "Event which occurred",
+                            "enum": [
+                              "bounces",
+                              "hardBounces",
+                              "softBounces",
+                              "delivered",
+                              "sent",
+                              "accepted",
+                              "unsubscription",
+                              "replies",
+                              "blocked",
+                              "rejected",
+                              "skipped"
+                            ]
+                          },
+                          "reason": {
+                            "type": "string",
+                            "example": "Message is undeliverable due to an incorrect / invalid / blacklisted / permanently barred MSISDN for this operator",
+                            "description": "Reason of bounce (only available if the event is hardbounce or softbounce)"
+                          },
+                          "reply": {
+                            "type": "string"
+                          },
+                          "tag": {
+                            "type": "string",
+                            "example": "CabWaiting",
+                            "description": "Tag of the SMS which generated the event"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "examples": {
+                  "response": {
+                    "value": {
+                      "events": [
+                        {
+                          "phoneNumber": "00911059469013",
+                          "date": "2015-05-20T12:30:00Z",
+                          "messageId": "1473139351170140",
+                          "event": "sent",
+                          "reason": "Recipient is currently unreachable",
+                          "tag": "cabWaiting"
+                        },
+                        {
+                          "phoneNumber": "00911059469013",
+                          "date": "2015-05-20T16:30:00Z",
+                          "messageId": "1473139351170140",
+                          "event": "delivered",
+                          "reason": "Recipient is currently unreachable",
+                          "tag": "cabRequest"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "code",
+                    "message"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "example": "method_not_allowed",
+                      "description": "Error code displayed in case of a failure",
+                      "enum": [
+                        "invalid_parameter",
+                        "missing_parameter",
+                        "out_of_range",
+                        "campaign_processing",
+                        "campaign_sent",
+                        "document_not_found",
+                        "reseller_permission_denied",
+                        "not_enough_credits",
+                        "permission_denied",
+                        "duplicate_parameter",
+                        "duplicate_request",
+                        "method_not_allowed",
+                        "unauthorized",
+                        "account_under_validation",
+                        "not_acceptable",
+                        "bad_request",
+                        "unprocessable_entity"
+                      ]
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "POST Method is not allowed on this path",
+                      "description": "Readable message associated to the failure"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "api-key": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "api-key": {
+        "description": "The API key should be passed in the request headers as `api-key` for authentication.",
+        "type": "apiKey",
+        "name": "api-key",
+        "in": "header"
+      }
+    }
+  }
+}
