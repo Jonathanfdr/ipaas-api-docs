@@ -106,6 +106,38 @@ def validar_para_ipaas(spec):
     return problemas
 
 
+def remover_esquemas_em_query(spec):
+    """Remove securitySchemes com `in: query`, que quebram o importador do iPaaS.
+
+    Verificado por bissecção: declarar um `securityScheme` de `type: apiKey`
+    com `in: query` faz o `import-swagger` responder HTTP 500, mesmo que o
+    esquema não seja referenciado em `security`. Com `in: header` importa
+    normalmente. A autenticação em query continua funcionando em execução,
+    porque quem injeta os parâmetros é a conta cadastrada no iPaaS.
+    """
+    esquemas = (spec.get("components") or {}).get("securitySchemes") or {}
+    removidos = [n for n, e in esquemas.items() if isinstance(e, dict) and e.get("in") == "query"]
+    if not removidos:
+        return []
+
+    for nome in removidos:
+        esquemas.pop(nome)
+    if not esquemas:
+        (spec.get("components") or {}).pop("securitySchemes", None)
+
+    requisitos = []
+    for req in spec.get("security") or []:
+        resto = {k: v for k, v in req.items() if k not in removidos}
+        if resto:
+            requisitos.append(resto)
+    if requisitos:
+        spec["security"] = requisitos
+    else:
+        spec.pop("security", None)
+
+    return removidos
+
+
 def processar(pasta: Path):
     """Processa todas as specs fonte da pasta (openapi.json e openapi-*.json)."""
     origens = sorted(
@@ -122,6 +154,10 @@ def processar(pasta: Path):
         problemas = validar_para_ipaas(spec)
 
         plano = dereferenciar(spec, spec)
+        em_query = remover_esquemas_em_query(plano)
+        if em_query:
+            print(f"    securitySchemes em query removidos: {', '.join(em_query)}"
+                  " (quebram o importador; a conta do iPaaS injeta os parâmetros)")
         # remove apenas o que foi embutido inline; securitySchemes descreve a
         # autenticação e nao e schema de dados, entao permanece
         componentes = plano.get("components") or {}

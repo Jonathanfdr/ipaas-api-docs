@@ -937,25 +937,5 @@
         }
       }
     }
-  },
-  "security": [
-    {
-      "APIKey": [],
-      "APIToken": []
-    }
-  ],
-  "components": {
-    "securitySchemes": {
-      "APIKey": {
-        "type": "apiKey",
-        "in": "query",
-        "name": "key"
-      },
-      "APIToken": {
-        "in": "query",
-        "name": "token",
-        "type": "apiKey"
-      }
-    }
   }
 }
