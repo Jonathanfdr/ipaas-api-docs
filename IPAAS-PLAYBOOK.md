@@ -253,6 +253,14 @@ Todos verificados na prática. Nenhum está documentado publicamente.
 
 Enviar a spec em **Swagger 2.0** (com o corpo em `parameters`/`in: body`) não resolve: o importador quebra com HTTP 500 e `Cannot invoke "java.lang.Throwable.getMessage()" because "cause" is null` (NPE no backend). Só OpenAPI 3 é aceito.
 
+**Spec oficial em Swagger 2.0 se resolve convertendo** — verificado na Brevo, cuja spec oficial é 2.0. A conversão com `swagger2openapi` produziu OpenAPI 3.0.3 limpo, que importou sem erro:
+
+```bash
+npx -y swagger2openapi@7 --outfile /tmp/spec_oas3.json --targetVersion 3.0.3 /tmp/spec_swagger2.json
+```
+
+Depois disso o fluxo normal (`slice_spec.py` → `dereference.py`) se aplica. Se a spec estiver em YAML, converta para JSON antes, porque os dois scripts do repositório leem JSON.
+
 Consequência prática: para APIs de escrita, o corpo precisa ser montado no builder, recurso por recurso. Existe um conversor que ajuda: `POST /ipaas/api/v3/rest-resources/schemas` recebe um **JSON de exemplo no corpo da requisição** e devolve os campos já no formato interno do iPaaS:
 
 ```json
@@ -268,7 +276,9 @@ Consequência prática: para APIs de escrita, o corpo precisa ser montado no bui
 
 Isso abre caminho para gerar o corpo a partir do schema da spec, mas ainda não foi testado se dá para gravar o resultado no recurso via `PUT`. **Não verificado.**
 
-**O `securityScheme` da spec vira header no recurso.** Se a spec declara `securitySchemes` com `in: header` (o Asaas usa `access_token`), o importador cria esse header no `inputSchema` do recurso. Não conflita com a conta `API_KEY`, que injeta o header em tempo de execução, mas explica por que o campo aparece duplicado na interface.
+**O `securityScheme` da spec vira header no recurso.** Se a spec declara `securitySchemes` com `in: header` (o Asaas usa `access_token`, a Brevo usa `api-key`), o importador cria esse header no `inputSchema` do recurso, marcado como `sensitiveData: true`. Não conflita com a conta `API_KEY`, que injeta o header em tempo de execução, mas explica por que o campo aparece duplicado na interface.
+
+Consequência prática: **remova das specs os esquemas de segurança opcionais**. A spec da Brevo declara `api-key` e `partner-key`; mantendo os dois, todo recurso importado ganharia um campo `partner-key` que ninguém usa. Deixe em `security`/`securitySchemes` apenas o esquema que a conta vai preencher.
 
 **Cache do `raw.githubusercontent` tem TTL de alguns minutos.** Após um push, a URL de branch pode servir a versão antiga, e query string não contorna. Para importar algo recém-publicado, use a URL por commit SHA, que é imutável:
 
@@ -569,6 +579,7 @@ GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initia
 |---|---|---|---|
 | BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
 | Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados; conta criada e validada; diagrama com POST (`inBody`) e encadeamento entre steps executado `DONE`, criando cliente e cobrança reais no sandbox |
+| Brevo | `API_KEY` (header `api-key`) | 68 em 4 serviços | 68 recursos importados a partir da spec oficial convertida de Swagger 2.0; **conta e diagrama pendentes** (falta a chave de API) |
 
 ---
 
@@ -606,6 +617,36 @@ A chave de sandbox usada na conta foi compartilhada em chat e **deve ser rotacio
 
 O sandbox do Asaas já tem um cliente (`cus_000008990297`) e uma cobrança (`pay_5t28kq86iwolagvm`) criados pelo teste. Se for reexecutar o diagrama de validação, ele cria novos registros a cada execução — o CPF `11144477735` é aceito repetidamente, mas a listagem vai acumulando.
 
+### Brevo — `API_KEY` no header `api-key`
+
+| Item | Id |
+|---|---|
+| App (`componentId`) | `007c857b-3406-4daa-9df4-ba7b19c708f8` |
+| Ambiente `Produção` (`https://api.brevo.com/v3`) | `9a1baff7-f35d-4a3c-8b57-51c72406314e` |
+| Serviço `Contatos` (29 recursos) | `6cf4a050-621f-4e5f-b102-2b62ffc32943` |
+| Serviço `E-mails Transacionais` (22 recursos) | `322bff7d-0083-4424-9ba5-85f10445346a` |
+| Serviço `Campanhas de E-mail` (13 recursos) | `25003ddf-8ec3-42e4-bf73-e88a3dcc4daa` |
+| Serviço `SMS Transacional` (4 recursos) | `af9d7b37-8466-4dc1-98cc-779fecb9321d` |
+
+**Sem conta ainda** — falta a chave de API, que se gera em https://app.brevo.com/settings/keys/api. Sem conta as chamadas dão 401 e não há como montar o diagrama de validação (o step REST exige `accountId`).
+
+Para validar envio sem disparar e-mail de verdade, o `POST /smtp/email` aceita `"headers": { "X-Sib-Sandbox": "drop" }` **dentro do corpo**. Ver `brevo/README.md`.
+
+### API BRASIL (app nativo TOTVS) — `NO_AUTH`
+
+App do catálogo TOTVS, não do nosso tenant (`ownerTenantName: TOTVS`, `isCustom: false`). Já existia com um serviço `Api` de um único recurso; recebeu um serviço novo com a spec completa da BrasilAPI.
+
+| Item | Id |
+|---|---|
+| App (`componentId`) | `309b2080-c708-4de5-8145-63dda163acc9` |
+| Ambiente `Brasil Api` (`https://brasilapi.com.br/api`) | `55101f14-1649-42f9-beca-0e09b75940a9` |
+| Serviço `Api` (1 recurso, pré-existente — **não mexer**) | `3ca60099-a49e-4990-a113-77193e762d28` |
+| Serviço `Dados Públicos` (16 recursos, criado por nós) | `f2c362d3-0580-44e7-aa51-e64c14147aef` |
+
+A API aceitou a escrita num app de outro tenant sem erro. **Não foi verificado** se o serviço criado fica visível para os outros tenants que usam o app nativo. Antes de repetir esse padrão, decida a política: app custom nosso com `share`/`request-native` depois (seção 7), ou complementar app nativo existente.
+
+Isso torna a BrasilAPI **duplicada** no tenant: o app custom `BrasilAPI` (`a7b79983`) e o serviço novo no app nativo. Decidir qual manter.
+
 ---
 
 ## 11. Fila de próximos apps
@@ -616,9 +657,11 @@ Ordenada por custo de integração. O critério é o modelo de autenticação (s
 
 | Padrão | Candidatos | Observação |
 |---|---|---|
-| `TOKEN` | SendGrid, Notion, Airtable, Asana | Bearer simples; SendGrid e Asana têm OpenAPI oficial |
-| `BASIC` | Twilio, Zendesk, Jira Cloud | Twilio usa Account SID + Auth Token e tem spec por produto; Zendesk e Jira usam e-mail + API token |
-| `API_KEY` em `query` | Trello, Pipedrive | Já exercitamos `API_KEY` em header; em query muda só o `addTo` |
+| `TOKEN` | HubSpot, ZapSign, SendGrid, Notion, Airtable, Asana | HubSpot: token de private app em developer test account free, spec oficial por objeto. ZapSign: API Token estático, conta free, sem spec oficial (API pequena), alta relevância BR |
+| `BASIC` | Jira Cloud, Twilio, Zendesk | Jira Cloud é o mais barato: plano free permanente, API token instantâneo em `id.atlassian.com`, spec oficial em `developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json` (grande, exige recorte) |
+| `API_KEY` em `query` | Clicksign v1, Trello, Pipedrive | Clicksign tem duas gerações: a **v3** manda `access_token` no header, a **v1** manda na query, com sandbox em `sandbox.clicksign.com`. Trello resolve o padrão rápido se o sandbox da Clicksign não for acessível |
+
+Levantado em 2026-09-03 a partir da documentação dos fornecedores; a facilidade de obter credencial muda com o tempo, reconfirme antes de começar.
 
 Fechar `TOKEN` e `BASIC` cobriria os quatro padrões viáveis, deixando o catálogo pronto para escalar.
 
