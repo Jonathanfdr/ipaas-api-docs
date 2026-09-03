@@ -8,14 +8,41 @@ Tudo marcado como **verificado** foi executado com sucesso. O que ainda não foi
 
 ## 0. Arranque rápido
 
-Se você está começando uma sessão nova, siga esta ordem:
+Se você está começando uma sessão nova, siga esta ordem. O prompt inicial pronto para colar está no [README](./README.md#prompt-inicial).
 
 1. **Leia as seções 1, 2 e 4.** São o essencial: contexto, sequência de cadastro e as armadilhas do importador. As seções 3 (auth models), 8 (endpoints) e 10 (estado atual) são consulta.
-2. **Confirme que há um Chrome logado no iPaaS.** Todas as chamadas de API são feitas de dentro da página autenticada, usando o token do cookie (seção 1). Sem isso, nada funciona. Se a sessão caiu, peça ao usuário para logar.
-3. **Confirme em qual tenant está trabalhando.** O tenant usado até agora é **produção** (`iPaaS Gateway`). Criar apps ali é reversível, mas confirme antes de criar em lote.
-4. **Veja o estado atual na seção 10** para não recriar o que já existe.
+
+2. **Abra o navegador e garanta a sessão.** Todas as chamadas de API saem de dentro da página autenticada, usando o token do cookie (seção 1) — sem isso, nada funciona.
+
+   - Abra `https://ipaas.totvs.app`. O iPaaS redireciona para o TOTVS Identity (`app.fluigidentity.com/ui/login`).
+   - **Peça ao usuário para logar e espere a confirmação dele.** Não tente automatizar SSO/MFA, não leia credenciais de arquivo e não preencha o formulário de login.
+   - Depois da confirmação, valide a sessão com uma **chamada real à API**, não pela URL da página:
+
+   ```js
+   const m = document.cookie.match(/(?:^|;\s*)jwt\.token=([^;]+)/);
+   // sem match: a sessão não subiu; peça login de novo em vez de seguir
+   const r = await fetch('https://api-ipaas.totvs.app/ipaas/api/v2/auth-models?page=1&pageSize=1',
+     { headers: { authorization: 'Bearer ' + m[1], accept: 'application/json' } });
+   r.status; // 200 = sessão boa
+   ```
+
+   O token vale cerca de 48 horas. Se começar a dar 401 no meio da sessão, é ele — peça um novo login.
+
+3. **Confirme em qual tenant está trabalhando e diga ao usuário.** O tenant usado até agora é **produção** (`iPaaS Gateway`). O nome aparece no cabeçalho da interface e no campo `ownerTenantName` dos apps criados por nós:
+
+   ```
+   GET /ipaas/api/v3/applications?page=1&pageSize=9999
+   ```
+
+   Nesse mesmo GET dá para ver se o app é nosso (`isCustom: true`, `ownerTenantName` do nosso tenant) ou do catálogo TOTVS (`isCustom: false`). Escrever em app de outro tenant é possível pela API, mas as implicações não foram verificadas — ver seção 10.
+
+4. **Confirme por GET o que já existe antes de criar qualquer coisa.** A seção 10 tem o estado levantado, mas o tenant é compartilhado e pode ter mudado. Vale para app, ambiente, conta e serviço.
+
 5. **Escolha o próximo app na fila da seção 11** ou siga o que o usuário pedir.
+
 6. **Siga a receita da seção 5.**
+
+7. **Ao terminar, atualize a documentação.** Seção 9 (histórico), seção 10 (IDs do que foi criado), seção 11 (fila) e o `README.md` da pasta do app. Registre também o que **falhou** e o que **não deu para verificar** — é o que economiza tempo na sessão seguinte.
 
 Comandos do repositório:
 
@@ -31,6 +58,9 @@ Regras que evitam a maior parte do retrabalho:
 - **Nunca fixe `diagramId`.** Cada save cria nova revisão; sempre leia com `lastVersion=true` (seção 6.4).
 - **Não confie no `testAccount`** para validar credencial (seção 2.3).
 - **O corpo de POST/PUT não vem na importação**; use `configurations.inBody` no diagrama (seções 4 e 6.1).
+- **Diagrama novo só nasce pela interface**; não existe POST para criar integração (seção 6.2).
+- **HTTP 500 na importação tem duas causas comuns e a mesma mensagem**: falta de `tags` ou `securitySchemes` com `in: query` (seção 4).
+- **Peça a credencial ao usuário na etapa da conta** e lembre de rotacionar depois. Nunca versione.
 - **Valide executando o diagrama**, não só importando.
 
 ---

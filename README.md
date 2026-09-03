@@ -18,6 +18,46 @@ Em resumo, o caminho é:
 Aplicativo → Ambiente → [Conta] → Serviço → Importar Swagger → Validar → Diagrama
 ```
 
+### Prompt inicial
+
+O cadastro é feito com um agente operando o navegador e a API do iPaaS. Cole o prompt abaixo no começo da sessão, trocando o nome do app:
+
+```
+Vamos cadastrar um app novo no TOTVS iPaaS: <NOME DO APP>.
+
+Antes de mexer em qualquer coisa:
+
+1. Leia o IPAAS-PLAYBOOK.md deste repositório: seções 0, 1, 2 e 4 são
+   obrigatórias; 3, 6, 8 e 10 são consulta.
+2. Abra o Chrome em https://ipaas.totvs.app. Ele redireciona para o login do
+   TOTVS Identity. Me avise e ESPERE eu confirmar que loguei — não tente
+   automatizar SSO/MFA nem ler credenciais de nenhum arquivo.
+3. Depois que eu confirmar, valide a sessão com uma chamada real à API usando
+   o token do cookie jwt.token, e me diga em qual tenant estamos.
+4. Confirme por GET o que já existe no tenant antes de criar qualquer coisa
+   (a seção 10 do playbook pode estar desatualizada).
+
+Depois siga a receita da seção 5. Regras da casa:
+
+- Procure a spec oficial do fornecedor antes de escrever qualquer spec à mão.
+- Recorte por domínio: vários serviços pequenos, nunca um com centenas de
+  operações.
+- Não versione credenciais. Me peça a chave quando chegar na etapa da conta,
+  e me lembre de rotacionar depois.
+- Valide executando o diagrama, não só importando. Sem execução DONE, o app
+  não está validado.
+- Registre no playbook e no README da pasta o que você descobrir de novo,
+  inclusive o que falhou e o que não deu para verificar.
+```
+
+Se não houver um app definido, troque a primeira linha por:
+
+```
+Vamos cadastrar o próximo app no TOTVS iPaaS. Me proponha candidatos a partir
+da fila da seção 11 do playbook, priorizando autenticação fácil de obter, e
+confirme comigo antes de começar.
+```
+
 ## Apps
 
 | App | Autenticação | Operações | Status |
