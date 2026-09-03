@@ -25,6 +25,7 @@ Aplicativo → Ambiente → [Conta] → Serviço → Importar Swagger → Valida
 | [brasilapi](./brasilapi) | `NO_AUTH` | 16 | importado e validado em diagrama |
 | [asaas](./asaas) | `API_KEY` (header `access_token`) | 41 em 3 serviços | importado e validado em diagrama |
 | [brevo](./brevo) | `API_KEY` (header `api-key`) | 68 em 4 serviços | importado e validado em diagrama |
+| [trello](./trello) | `API_KEY` (query `key` + `token`) | 151 em 5 serviços | importado |
 
 ## Estrutura
 
@@ -36,6 +37,7 @@ IPAAS-PLAYBOOK.md            # referência de cadastro no iPaaS
 ├── ipaas.json               # metadados de cadastro (app, ambientes, contas, serviços)
 └── README.md                # como cadastrar e usar no iPaaS
 tools/
+├── tag_by_path.py           # injeta tags derivadas do path, quando a spec não tem
 ├── slice_spec.py            # recorta uma spec grande em specs menores, por tag
 └── dereference.py           # gera os *.ipaas.json a partir das specs fonte
 ```
@@ -66,7 +68,7 @@ python3 tools/dereference.py <app>     # um app
 python3 tools/dereference.py --all     # todos
 ```
 
-O `dereference.py` existe porque o importador do iPaaS **não resolve `$ref`** — sem a dereferência, os campos da resposta se perdem e viram um único campo `response` do tipo string. Ele também valida os requisitos do importador e avisa sobre operações sem `tags` ou `summary`.
+O `dereference.py` existe porque o importador do iPaaS **não resolve `$ref`** — sem a dereferência, os campos da resposta se perdem e viram um único campo `response` do tipo string. Ele também remove `securitySchemes` com `in: query`, que fazem a importação falhar com HTTP 500, valida os requisitos do importador e avisa sobre operações sem `tags` ou `summary`.
 
 ## URL de importação
 

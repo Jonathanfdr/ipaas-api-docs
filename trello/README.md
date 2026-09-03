@@ -97,6 +97,24 @@ python3 tools/dereference.py trello
 
 A spec do Trello também usa `parameters` no nível do path (34 ocorrências), o que expôs um bug no `dereference.py` — ele tratava toda chave do path item como operação. Corrigido.
 
+## A armadilha que custou a importação: `securitySchemes` em query
+
+A primeira tentativa de importar os 5 serviços falhou com `HTTP 500 FLUIG_CONNECTOR_IMPORT_SWAGGER_500` — a mesma mensagem que o importador dá quando falta `tags`, o que levou a um diagnóstico errado no começo.
+
+A causa real: **o importador não aceita `securitySchemes` de `type: apiKey` com `in: query`**. Basta declarar o esquema para quebrar; não precisa estar referenciado em `security`. Isolado por bissecção:
+
+| Variante testada | Resultado |
+|---|---|
+| dois esquemas `in: query` (como o Trello publica) | 500 |
+| um esquema `in: query` | 500 |
+| esquemas `in: query` declarados, `security` ausente | 500 |
+| mesmo esquema com `in: header` | 200 |
+| sem `securitySchemes` | 200 |
+
+Descartadas no caminho: `oneOf` nos parâmetros, `parameters` no nível do path, respostas sem `content`, quantidade de operações e operações individuais (as 12 do serviço `Checklists` importam uma por uma).
+
+O `dereference.py` passou a remover esses esquemas ao gerar o `.ipaas.json`, avisando no console. As specs fonte mantêm o que o fornecedor publica. Nada se perde em execução: quem injeta `key` e `token` na query é a conta do iPaaS.
+
 ## Limitação da spec oficial: respostas sem schema
 
 **91 das 151 operações recortadas não declaram schema de resposta.** Não é problema do recorte nem da dereferência: a spec oficial simplesmente não descreve o retorno dessas operações. A cobertura por serviço:
@@ -113,4 +131,4 @@ Entre as que faltam estão leituras centrais: `GET /boards/{id}/cards`, `GET /li
 
 Consequência prática: o recurso importa e **executa** normalmente, e o payload inteiro continua disponível no diagrama via `{{{idN}}}`. O que se perde é o mapeamento campo a campo na interface do builder — quem montar o fluxo não vê os campos da resposta para escolher, tem que saber o nome de cor.
 
-Os schemas que **existem** na spec são bons (o objeto `Board` tem 20+ campos com `example` e `pattern`), então a assimetria é só de cobertura.
+Os schemas que **existem** na spec são bons (o objeto `Board` tem 20+ campos com `example` e `pattern`), então a assimetria é só de cobertura. Confirmado no iPaaS: `GET /boards/{id}` importou com 26 campos de resposta, `inPath(1)` e `inQuery(16)`; `GET /boards/{id}/cards` importou com 0 campos de resposta.

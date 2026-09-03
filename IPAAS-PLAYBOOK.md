@@ -20,6 +20,7 @@ Se você está começando uma sessão nova, siga esta ordem:
 Comandos do repositório:
 
 ```bash
+python3 tools/tag_by_path.py <spec-origem> <spec-destino> "segmento=Tag" ...  # injeta tags quando a spec nao tem
 python3 tools/slice_spec.py <spec-origem> <app> "Tag=slug" ...   # recorta spec grande por tag
 python3 tools/dereference.py <app>                                # gera os *.ipaas.json
 python3 tools/dereference.py --all
@@ -239,6 +240,8 @@ Todos verificados na prática. Nenhum está documentado publicamente.
 
 **`tags` é obrigatório em toda operação.** Sem `tags`, a importação falha com HTTP 500 e `FLUIG_CONNECTOR_IMPORT_SWAGGER_500`, sem indicar a causa. Confirmado por bissecção: a mesma spec sem tags dá 500, com tags dá 200.
 
+Nem toda spec oficial tem tags: a do Trello publica **261 operações sem nenhuma tag**, o que além de quebrar a importação impede o recorte por domínio. `tools/tag_by_path.py` deriva a tag do primeiro segmento do path (`/boards/{id}/lists` → `boards`), com renomeação opcional para o nome ficar legível na interface.
+
 **`$ref` não é resolvido.** Response apontando para `#/components/schemas/X` é importado como um único campo `response` do tipo string e os campos do objeto se perdem. Vale para objetos e arrays de objetos. Solução: `tools/dereference.py`.
 
 **`allOf` também precisa ser resolvido.** Mesmo motivo; o script mescla os membros.
@@ -275,6 +278,22 @@ Consequência prática: para APIs de escrita, o corpo precisa ser montado no bui
 ```
 
 Isso abre caminho para gerar o corpo a partir do schema da spec, mas ainda não foi testado se dá para gravar o resultado no recurso via `PUT`. **Não verificado.**
+
+**`securityScheme` com `in: query` quebra a importação.** Um `securitySchemes` de `type: apiKey` com `in: query` faz o `import-swagger` responder **HTTP 500 `FLUIG_CONNECTOR_IMPORT_SWAGGER_500`** — o mesmo erro genérico da falta de `tags`, o que induz ao diagnóstico errado. Basta **declarar** o esquema: não precisa estar referenciado em `security`.
+
+Verificado por bissecção com a spec do Trello, que declara `key` e `token` em query:
+
+| Variante | Resultado |
+|---|---|
+| dois esquemas `in: query` | 500 |
+| um esquema `in: query` | 500 |
+| esquemas `in: query` declarados, `security` ausente | 500 |
+| mesmo esquema com `in: header` | 200 |
+| sem `securitySchemes` | 200 |
+
+O `dereference.py` remove esses esquemas ao gerar o `.ipaas.json` e avisa no console. Não se perde nada em execução: quem injeta os parâmetros é a conta cadastrada no iPaaS, não a spec.
+
+Diagnóstico prático: quando der 500, cheque **`tags`** primeiro e **`securitySchemes` com `in: query`** em seguida. As duas causas dão a mesma mensagem.
 
 **O `securityScheme` da spec vira header no recurso.** Se a spec declara `securitySchemes` com `in: header` (o Asaas usa `access_token`, a Brevo usa `api-key`), o importador cria esse header no `inputSchema` do recurso, marcado como `sensitiveData: true`. Não conflita com a conta `API_KEY`, que injeta o header em tempo de execução, mas explica por que o campo aparece duplicado na interface.
 
@@ -598,6 +617,7 @@ GET    /ipaas/api/v4/messages?page=1&pageSize=10&status=DONE&status=ERROR&initia
 | BrasilAPI | `NO_AUTH` | 16 | 16 recursos importados; 15 validados em diagrama, execução `DONE` |
 | Asaas | `API_KEY` (header `access_token`) | 41 em 3 serviços | 41 recursos importados; conta criada e validada; diagrama com POST (`inBody`) e encadeamento entre steps executado `DONE`, criando cliente e cobrança reais no sandbox |
 | Brevo | `API_KEY` (header `api-key`) | 68 em 4 serviços | 68 recursos importados a partir da spec oficial convertida de Swagger 2.0; conta criada; diagrama com 6 steps em 3 serviços executado `DONE`, incluindo `POST /smtp/email` em modo sandbox. Serviço `SMS Transacional` **não validado**: plano gratuito não tem crédito de SMS e todos os endpoints respondem 500 |
+| Trello | `API_KEY` (query `key` + `token`) | 151 em 5 serviços | 151 recursos importados; exigiu injetar `tags` (a spec oficial não tem nenhuma) e remover `securitySchemes` em query, que quebrava o importador; **conta e diagrama pendentes** (falta `key` e `token`) |
 
 ---
 
@@ -656,8 +676,23 @@ A chave usada na conta foi compartilhada em chat e **deve ser rotacionada**. Se 
 
 **O `POST /smtp/email` em modo sandbox funcionou via `inBody`.** Basta incluir `"headers": { "X-Sib-Sandbox": "drop" }` dentro do corpo. A Brevo devolve `messageId` real do relay, não envia e-mail e não registra a chamada nas estatísticas (`requests: 0` no dia). É a forma barata de validar operações de escrita sem efeito colateral.
 
-### API BRASIL (app nativo TOTVS) — `NO_AUTH`
+### Trello — `API_KEY` em `query` (`key` + `token`)
 
+| Item | Id |
+|---|---|
+| App (`componentId`) | `34ad64d8-8f8b-4094-8660-25a020c6a6b9` |
+| Ambiente `Produção` (`https://api.trello.com/1`) | `088988f8-273b-4e89-953a-d2774b1ba6ba` |
+| Serviço `Quadros` (41 recursos) | `cd3986a6-9d85-43fc-98aa-4c674cf2c06e` |
+| Serviço `Cartões` (42 recursos) | `d1c475b5-286e-4ea6-ad96-6083cbed4404` |
+| Serviço `Listas` (11 recursos) | `74ea1120-5a3a-428d-bb72-3c1255b9b38d` |
+| Serviço `Checklists` (12 recursos) | `c2dbb561-de72-4f2b-bfa1-88e81132e912` |
+| Serviço `Membros` (45 recursos) | `fd451172-56a2-4213-8dd7-3917f8002b35` |
+
+**Sem conta ainda** — faltam a `key` e o `token`. A `key` sai de um Power-Up em `trello.com/power-ups/admin`, aba API Key; o `token` se gera na mesma tela. Este é o primeiro app com `addTo: query` e com **duas** chaves na mesma conta.
+
+**A spec oficial não descreve a resposta de 91 das 151 operações.** Os recursos importam e executam, e o payload inteiro fica disponível no diagrama via `{{{idN}}}`; o que falta é o mapeamento campo a campo no builder. Conferido: `GET /boards/{id}` importou com 26 campos de resposta, `inPath(1)`, `inQuery(16)`; `GET /boards/{id}/cards` importou com 0 campos de resposta.
+
+### API BRASIL (app nativo TOTVS) — `NO_AUTH`
 App do catálogo TOTVS, não do nosso tenant (`ownerTenantName: TOTVS`, `isCustom: false`). Já existia com um serviço `Api` de um único recurso; recebeu um serviço novo com a spec completa da BrasilAPI.
 
 | Item | Id |
@@ -683,7 +718,8 @@ Ordenada por custo de integração. O critério é o modelo de autenticação (s
 |---|---|---|
 | `TOKEN` | HubSpot, ZapSign, SendGrid, Notion, Airtable, Asana | HubSpot: token de private app em developer test account free, spec oficial por objeto. ZapSign: API Token estático, conta free, sem spec oficial (API pequena), alta relevância BR |
 | `BASIC` | Jira Cloud, Twilio, Zendesk | Jira Cloud é o mais barato: plano free permanente, API token instantâneo em `id.atlassian.com`, spec oficial em `developer.atlassian.com/cloud/jira/platform/swagger-v3.v3.json` (grande, exige recorte) |
-| `API_KEY` em `query` | Clicksign v1, Trello, Pipedrive | Clicksign tem duas gerações: a **v3** manda `access_token` no header, a **v1** manda na query, com sandbox em `sandbox.clicksign.com`. Trello resolve o padrão rápido se o sandbox da Clicksign não for acessível |
+
+`API_KEY` em `query` foi coberto pelo **Trello** (seção 10) — restam `TOKEN` e `BASIC` para fechar os quatro padrões viáveis. Clicksign v1 e Pipedrive seguem como alternativas em query, se houver interesse específico.
 
 Levantado em 2026-09-03 a partir da documentação dos fornecedores; a facilidade de obter credencial muda com o tempo, reconfirme antes de começar.
 
