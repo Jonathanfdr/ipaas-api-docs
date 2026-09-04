@@ -44,127 +44,22 @@
           {
             "name": "hourly",
             "in": "query",
-            "description": "A list of weather variables which should be returned.",
+            "description": "A list of weather variables which should be returned. Lista separada por vírgula. Valores permitidos (ex.): temperature_2m, relative_humidity_2m, dew_point_2m, apparent_temperature, precipitation, rain, snowfall, snow_depth….",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "temperature_2m",
-                  "relative_humidity_2m",
-                  "dew_point_2m",
-                  "apparent_temperature",
-                  "precipitation",
-                  "rain",
-                  "snowfall",
-                  "snow_depth",
-                  "weather_code",
-                  "pressure_msl",
-                  "surface_pressure",
-                  "cloud_cover",
-                  "cloud_cover_low",
-                  "cloud_cover_mid",
-                  "cloud_cover_high",
-                  "et0_fao_evapotranspiration",
-                  "vapour_pressure_deficit",
-                  "wind_speed_10m",
-                  "wind_speed_100m",
-                  "wind_direction_10m",
-                  "wind_direction_100m",
-                  "wind_gusts_10m",
-                  "soil_temperature_0_to_7cm",
-                  "soil_temperature_7_to_28cm",
-                  "soil_temperature_28_to_100cm",
-                  "soil_temperature_100_to_255cm",
-                  "soil_moisture_0_to_7cm",
-                  "soil_moisture_7_to_28cm",
-                  "soil_moisture_28_to_100cm",
-                  "soil_moisture_100_to_255cm",
-                  "soil_moisture_0_to_100cm",
-                  "soil_temperature_0_to_100cm",
-                  "soil_moisture_index_0_to_7cm",
-                  "soil_moisture_index_7_to_28cm",
-                  "soil_moisture_index_28_to_100cm",
-                  "soil_moisture_index_0_to_100cm",
-                  "boundary_layer_height",
-                  "wet_bulb_temperature_2m",
-                  "total_column_integrated_water_vapour",
-                  "is_day",
-                  "sunshine_duration",
-                  "growing_degree_days_base_0_limit_50",
-                  "leaf_wetness_probability",
-                  "wave_height",
-                  "wave_direction",
-                  "wave_period",
-                  "sea_surface_temperature",
-                  "shortwave_radiation",
-                  "direct_radiation",
-                  "diffuse_radiation",
-                  "direct_normal_irradiance",
-                  "global_tilted_irradiance",
-                  "terrestrial_radiation",
-                  "shortwave_radiation_instant",
-                  "direct_radiation_instant",
-                  "diffuse_radiation_instant",
-                  "direct_normal_irradiance_instant",
-                  "global_tilted_irradiance_instant",
-                  "terrestrial_radiation_instant"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "temperature_2m"
           },
           {
             "name": "daily",
             "in": "query",
-            "description": "A list of daily weather variable aggregations.",
+            "description": "A list of daily weather variable aggregations. Lista separada por vírgula. Valores permitidos (ex.): weather_code, temperature_2m_mean, temperature_2m_max, temperature_2m_min, apparent_temperature_mean, apparent_temperature_max, apparent_temperature_min, sunrise….",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "weather_code",
-                  "temperature_2m_mean",
-                  "temperature_2m_max",
-                  "temperature_2m_min",
-                  "apparent_temperature_mean",
-                  "apparent_temperature_max",
-                  "apparent_temperature_min",
-                  "sunrise",
-                  "sunset",
-                  "daylight_duration",
-                  "sunshine_duration",
-                  "precipitation_sum",
-                  "rain_sum",
-                  "snowfall_sum",
-                  "precipitation_hours",
-                  "wind_speed_10m_max",
-                  "wind_gusts_10m_max",
-                  "wind_direction_10m_dominant",
-                  "shortwave_radiation_sum",
-                  "et0_fao_evapotranspiration",
-                  "cloud_cover_mean",
-                  "dew_point_2m_mean",
-                  "dew_point_2m_max",
-                  "dew_point_2m_min",
-                  "relative_humidity_2m_mean",
-                  "relative_humidity_2m_max",
-                  "relative_humidity_2m_min",
-                  "pressure_msl_mean",
-                  "wind_speed_10m_mean",
-                  "wet_bulb_temperature_2m_mean",
-                  "vapour_pressure_deficit_max",
-                  "soil_moisture_0_to_7cm_mean",
-                  "soil_moisture_7_to_28cm_mean",
-                  "soil_moisture_28_to_100cm_mean",
-                  "soil_moisture_0_to_100cm_mean",
-                  "soil_temperature_0_to_7cm_mean",
-                  "soil_temperature_7_to_28cm_mean",
-                  "soil_temperature_28_to_100cm_mean"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "weather_code"
           },
           {
             "name": "start_date",
@@ -333,24 +228,12 @@
           {
             "name": "models",
             "in": "query",
-            "description": "Manually select one or more weather models.",
+            "description": "Manually select one or more weather models. Lista separada por vírgula. Valores permitidos (ex.): best_match, era5_seamless, era5, era5_land, ecmwf_ifs, cerra, era5_ensemble, ecmwf_ifs_analysis_long_window.",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "best_match",
-                  "era5_seamless",
-                  "era5",
-                  "era5_land",
-                  "ecmwf_ifs",
-                  "cerra",
-                  "era5_ensemble",
-                  "ecmwf_ifs_analysis_long_window"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "best_match"
           }
         ],
         "responses": {

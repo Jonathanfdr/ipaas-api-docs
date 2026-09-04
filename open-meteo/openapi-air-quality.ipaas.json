@@ -43,93 +43,22 @@
           {
             "name": "hourly",
             "in": "query",
-            "description": "A list of air quality variables which should be returned.",
+            "description": "A list of air quality variables which should be returned. Lista separada por vírgula. Valores permitidos (ex.): pm10, pm2_5, carbon_monoxide, carbon_dioxide, nitrogen_dioxide, sulphur_dioxide, ozone, aerosol_optical_depth….",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "pm10",
-                  "pm2_5",
-                  "carbon_monoxide",
-                  "carbon_dioxide",
-                  "nitrogen_dioxide",
-                  "sulphur_dioxide",
-                  "ozone",
-                  "aerosol_optical_depth",
-                  "dust",
-                  "uv_index",
-                  "uv_index_clear_sky",
-                  "ammonia",
-                  "methane",
-                  "alder_pollen",
-                  "birch_pollen",
-                  "grass_pollen",
-                  "mugwort_pollen",
-                  "olive_pollen",
-                  "ragweed_pollen",
-                  "formaldehyde",
-                  "glyoxal",
-                  "non_methane_volatile_organic_compounds",
-                  "pm10_wildfires",
-                  "peroxyacyl_nitrates",
-                  "secondary_inorganic_aerosol",
-                  "residential_elementary_carbon",
-                  "total_elementary_carbon",
-                  "pm2_5_total_organic_matter",
-                  "sea_salt_aerosol",
-                  "nitrogen_monoxide",
-                  "european_aqi",
-                  "european_aqi_pm2_5",
-                  "european_aqi_pm10",
-                  "european_aqi_nitrogen_dioxide",
-                  "european_aqi_ozone",
-                  "european_aqi_sulphur_dioxide",
-                  "us_aqi",
-                  "us_aqi_pm2_5",
-                  "us_aqi_pm10",
-                  "us_aqi_nitrogen_dioxide",
-                  "us_aqi_carbon_monoxide",
-                  "us_aqi_ozone",
-                  "us_aqi_sulphur_dioxide",
-                  "is_day"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "pm10"
           },
           {
             "name": "current",
             "in": "query",
-            "description": "A list of variables to return for the current conditions.",
+            "description": "A list of variables to return for the current conditions. Lista separada por vírgula. Valores permitidos (ex.): european_aqi, us_aqi, pm10, pm2_5, carbon_monoxide, nitrogen_dioxide, sulphur_dioxide, ozone….",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "european_aqi",
-                  "us_aqi",
-                  "pm10",
-                  "pm2_5",
-                  "carbon_monoxide",
-                  "nitrogen_dioxide",
-                  "sulphur_dioxide",
-                  "ozone",
-                  "aerosol_optical_depth",
-                  "dust",
-                  "uv_index",
-                  "uv_index_clear_sky",
-                  "ammonia",
-                  "alder_pollen",
-                  "birch_pollen",
-                  "grass_pollen",
-                  "mugwort_pollen",
-                  "olive_pollen",
-                  "ragweed_pollen"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "european_aqi"
           },
           {
             "name": "timeformat",

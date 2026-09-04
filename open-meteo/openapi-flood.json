@@ -43,23 +43,12 @@
           {
             "name": "daily",
             "in": "query",
-            "description": "A list of river discharge variables.",
+            "description": "A list of river discharge variables. Lista separada por vírgula. Valores permitidos (ex.): river_discharge, river_discharge_mean, river_discharge_median, river_discharge_max, river_discharge_min, river_discharge_p25, river_discharge_p75.",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "river_discharge",
-                  "river_discharge_mean",
-                  "river_discharge_median",
-                  "river_discharge_max",
-                  "river_discharge_min",
-                  "river_discharge_p25",
-                  "river_discharge_p75"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "river_discharge"
           },
           {
             "name": "timeformat",
@@ -142,22 +131,12 @@
           {
             "name": "models",
             "in": "query",
-            "description": "Manually select one or more weather models.",
+            "description": "Manually select one or more weather models. Lista separada por vírgula. Valores permitidos (ex.): seamless_v4, forecast_v4, consolidated_v4, seamless_v3, forecast_v3, consolidated_v3.",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "seamless_v4",
-                  "forecast_v4",
-                  "consolidated_v4",
-                  "seamless_v3",
-                  "forecast_v3",
-                  "consolidated_v3"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "seamless_v4"
           },
           {
             "name": "apikey",

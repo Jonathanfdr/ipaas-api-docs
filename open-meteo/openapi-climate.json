@@ -63,54 +63,12 @@
           {
             "name": "daily",
             "in": "query",
-            "description": "A list of daily climate variables.",
+            "description": "A list of daily climate variables. Lista separada por vírgula. Valores permitidos (ex.): temperature_2m_max, temperature_2m_min, temperature_2m_mean, pressure_msl_mean, cloud_cover_mean, precipitation_sum, snowfall_water_equivalent_sum, snowfall_sum….",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "temperature_2m_max",
-                  "temperature_2m_min",
-                  "temperature_2m_mean",
-                  "pressure_msl_mean",
-                  "cloud_cover_mean",
-                  "precipitation_sum",
-                  "snowfall_water_equivalent_sum",
-                  "snowfall_sum",
-                  "rain_sum",
-                  "relative_humidity_2m_min",
-                  "relative_humidity_2m_max",
-                  "relative_humidity_2m_mean",
-                  "wind_speed_10m_mean",
-                  "wind_speed_10m_max",
-                  "wind_gusts_10m_mean",
-                  "wind_gusts_10m_max",
-                  "soil_moisture_0_to_10cm_mean",
-                  "soil_moisture_0_to_100cm_mean",
-                  "soil_moisture_0_to_7cm_mean",
-                  "soil_moisture_7_to_28cm_mean",
-                  "soil_moisture_28_to_100cm_mean",
-                  "soil_moisture_index_0_to_7cm_mean",
-                  "soil_moisture_index_0_to_100cm_mean",
-                  "soil_moisture_index_7_to_28cm_mean",
-                  "soil_moisture_index_28_to_100cm_mean",
-                  "soil_temperature_0_to_100cm_mean",
-                  "soil_temperature_0_to_7cm_mean",
-                  "soil_temperature_7_to_28cm_mean",
-                  "soil_temperature_28_to_100cm_mean",
-                  "shortwave_radiation_sum",
-                  "et0_fao_evapotranspiration_sum",
-                  "vapour_pressure_deficit_max",
-                  "dew_point_2m_mean",
-                  "dew_point_2m_max",
-                  "dew_point_2m_min",
-                  "growing_degree_days_base_0_limit_50",
-                  "leaf_wetness_probability_mean",
-                  "daylight_duration"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "temperature_2m_max"
           },
           {
             "name": "temperature_unit",
@@ -192,23 +150,12 @@
           {
             "name": "models",
             "in": "query",
-            "description": "Manually select one or more weather models.",
+            "description": "Manually select one or more weather models. Lista separada por vírgula. Valores permitidos (ex.): CMCC_CM2_VHR4, FGOALS_f3_H, HiRAM_SIT_HR, MRI_AGCM3_2_S, EC_Earth3P_HR, MPI_ESM1_2_XR, NICAM16_8S.",
             "explode": false,
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "string",
-                "enum": [
-                  "CMCC_CM2_VHR4",
-                  "FGOALS_f3_H",
-                  "HiRAM_SIT_HR",
-                  "MRI_AGCM3_2_S",
-                  "EC_Earth3P_HR",
-                  "MPI_ESM1_2_XR",
-                  "NICAM16_8S"
-                ]
-              }
-            }
+              "type": "string"
+            },
+            "example": "CMCC_CM2_VHR4"
           },
           {
             "name": "apikey",
