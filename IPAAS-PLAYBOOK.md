@@ -280,6 +280,8 @@ Nem toda spec oficial tem tags: a do Trello publica **261 operações sem nenhum
 
 **`number` pode virar `string`.** Um campo `number` foi importado como `string`; `integer` foi preservado. Prefira `integer` para valores inteiros.
 
+**Parâmetro de query `type: array` fica sem o tipo do elemento.** O importador não captura o `items.type` de parâmetros de query do tipo array — o parâmetro entra com `type: array` e `itemType: null`, e na interface o tipo do elemento aparece em branco. Verificado no Open-Meteo, cujos parâmetros como `hourly`/`daily` são `array` de `enum` de `string`. Solução: se a API aceita **lista separada por vírgula** (caso do Open-Meteo: `hourly=temperature_2m,precipitation`), declare o parâmetro como `type: string` na spec e registre os valores permitidos na `description`. O importador então mostra `string` e a execução funciona igual, porque o valor já vai como texto na query.
+
 **Parâmetros de path viram `{{{param}}}`.** Formato de template do iPaaS, esperado.
 
 **O corpo de POST/PUT não é importado.** O importador traz path, query params, headers e o schema de **resposta**, mas ignora o corpo da requisição. Verificado com spec de teste isolada: um `POST` com `requestBody` (OpenAPI 3) importa com HTTP 200, porém `properties` sai sem `requestBody` e o `inputSchema` contém apenas `inHeader`. Não é problema da spec — é limitação do importador.
@@ -489,7 +491,7 @@ Só uma revisão fica `PUBLISHED`; as anteriores viram `ARCHIVED`. Nada é destr
 
 ### 6.5 Desenhar as ligações entre as caixas
 
-As conexões lógicas (`next`/`previous`) bastam para **executar**, mas as setas só aparecem no canvas se houver `finalConnections` com o path SVG:
+As conexões lógicas (`next`/`previous`) bastam para **executar**, mas as setas só aparecem no canvas se houver `finalConnections` com o path SVG. Sem elas o fluxo executa por API, mas o diagrama aparece **sem setas** no builder e passa a impressão de não estar ligado nem publicável (visto no Open-Meteo: com `finalConnections: []` os steps ficaram soltos; ao preencher os paths, as setas apareceram e a versão publicou normalmente). Preencha sempre:
 
 ```json
 "finalConnections": [{
@@ -536,6 +538,8 @@ Retorna `status` (`DONE`/`ERROR`), `executionTime`, `initialComponent`, `finalCo
 Cuidado ao interpretar o campo `message`: numa execução `DONE` ele carrega o **payload enviado**, não um erro. Só trate como erro junto com `status: ERROR` ou `errorStack` preenchido.
 
 Não encontrei endpoint público de detalhamento por componente (`/components`, `/steps`, `/traceability` retornam 500 ou 403). Para validar recurso por recurso, inclua todos os steps na resposta síncrona e verifique os payloads.
+
+**A tela de detalhe da mensagem (rastreabilidade) fica presa em skeleton.** No Monitor (`/ipaas/monitor`) a listagem carrega e mostra as execuções `DONE` normalmente, mas ao abrir uma execução (ícone de olho, rota `/message/{id}`) a página fica só com os placeholders de carregamento e não popula — mesmo com `GET /v4/messages/{id}` e o `sourceTypes=SPLITTED` retornando 200. É consistente com os endpoints por componente acima retornarem 500: o detalhe depende deles. Não é específico de um app; a validação real continua sendo `status: DONE` em `/v4/messages/{id}` e os payloads na resposta síncrona. A listagem que funciona usa `GET /v4/messages?sourceTypes=ORIGINAL&status=DONE&status=ERROR&initialDate=<ISO Z>&finalDate=<ISO Z>` (as datas em ISO com `Z` e `sourceTypes` são obrigatórias; sem elas dá 400).
 
 #### Encadear a saída de um step na entrada do próximo — verificado
 
